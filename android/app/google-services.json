@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "959568872577",
+    "project_id": "jamiu-class-manager",
+    "storage_bucket": "jamiu-class-manager.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:959568872577:android:5d51510ccbb8e9e800f980",
+        "android_client_info": {
+          "package_name": "com.example.jamiu_class_manager"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "959568872577-bcs0ld0blst5ksm5p7th5h1hqhjbbt1u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.jamiu_class_manager",
+            "certificate_hash": "a4bc5ae67ed8d692c767c0c588fed26b7ea636f4"
+          }
+        },
+        {
+          "client_id": "959568872577-3rngetcv2kpfbfi7ubs98ie57jp30ivk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDzycdqtmik28uqCVedSpnK17IZcEEk1Fo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "959568872577-3rngetcv2kpfbfi7ubs98ie57jp30ivk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
