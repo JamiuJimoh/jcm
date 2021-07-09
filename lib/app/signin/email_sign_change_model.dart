@@ -79,7 +79,7 @@ class EmailSignInChangeModel with EmailAndPasswordValidators, ChangeNotifier {
             password,
             confirmPassword,
           ) &&
-          // userType != null &&
+          userType != null &&
           !isLoading;
     }
   }
@@ -116,17 +116,6 @@ class EmailSignInChangeModel with EmailAndPasswordValidators, ChangeNotifier {
       email: '',
       password: '',
       formType: formType,
-      isLoading: false,
-      submitted: false,
-    );
-  }
-
-  void pickUserType(UserType type) {
-    final userType = type;
-
-    updateWith(
-      email: '',
-      password: '',
       userType: userType,
       isLoading: false,
       submitted: false,

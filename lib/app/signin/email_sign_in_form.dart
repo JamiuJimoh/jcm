@@ -39,33 +39,33 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
 
   Future<void> _submit() async {
     try {
-      setState(() {
-        _isLoading = true;
-      });
       await model.submit();
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => Container()),
-      );
-      setState(() {
-        _isLoading = false;
-      });
-    } on FirebaseAuthException catch (e) {
-      // TODO: test ios widget
-
+    } on FirebaseAuthException catch (error) {
       showExceptionAlertDialog(
         context,
         title: 'Sign in failed',
-        exception: e,
+        exception: error,
       );
-      setState(() {
-        _isLoading = false;
-      });
     }
   }
 
   Future<void> _signInWithGoogle(BuildContext context) async {
     try {
-      await model.signInWithGoogle();
+      if (model.formType == EmailSignInFormType.register &&
+          model.userType == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Row(
+            children: [
+              Icon(Icons.warning, color: Colors.yellow),
+              const SizedBox(width: 6.0),
+              Text('Register as a teacher or a student'),
+            ],
+          )),
+        );
+      } else {
+        await model.signInWithGoogle();
+      }
     } on Exception catch (e) {
       _showSignInError(context, e);
     }
@@ -101,7 +101,6 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
 
   @override
   Widget build(BuildContext context) {
-    print('model.userType===========');
     print(model.userType);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -163,7 +162,9 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
           value: UserType.teacher,
           groupValue: model.userType,
           onChanged: (user) {
-            model.pickUserType(user!);
+            setState(() {
+              model.userType = user;
+            });
           },
         ),
       if (model.formType == EmailSignInFormType.register)
@@ -172,7 +173,9 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
           value: UserType.student,
           groupValue: model.userType,
           onChanged: (user) {
-            model.pickUserType(user!);
+            setState(() {
+              model.userType = user;
+            });
           },
         ),
       const SizedBox(height: 20.0),

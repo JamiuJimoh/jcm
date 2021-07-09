@@ -1,10 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:jamiu_class_manager/services/auth.dart';
 import 'package:provider/provider.dart';
 
-import 'app/signin/sign_in_page.dart';
+import 'app/landing_page.dart';
 import 'app_theme.dart';
+import 'services/auth.dart';
 
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Flutter Demo',
         theme: AppTheme.lightMode,
-        home: SignInPage(),
+        home: LandingPage(),
       ),
     );
   }

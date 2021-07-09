@@ -25,13 +25,32 @@ class CustomElevatedButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         child: child,
-        style: ElevatedButton.styleFrom(
-          primary: buttonColor ?? Theme.of(context).primaryColor,
-          elevation: 1.0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(borderRadius),
+        // style: ElevatedButton.styleFrom(
+
+        //   primary: buttonColor ?? Theme.of(context).primaryColor,
+        //   elevation: 1.0,
+        //   shape: RoundedRectangleBorder(
+        //     borderRadius: BorderRadius.all(
+        //       Radius.circular(borderRadius),
+        //     ),
+        //   ),
+        // ),
+        style: ButtonStyle(
+          elevation: MaterialStateProperty.all(1.0),
+          shape: MaterialStateProperty.all(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
             ),
+          ),
+          backgroundColor: MaterialStateProperty.resolveWith<Color>(
+            (Set<MaterialState> states) {
+              if (states.contains(MaterialState.pressed))
+                return buttonColor ?? Theme.of(context).primaryColor;
+              else if (states.contains(MaterialState.disabled))
+                return buttonColor ??
+                    Theme.of(context).primaryColor.withOpacity(0.8);
+              return buttonColor ?? Theme.of(context).primaryColor;
+            },
           ),
         ),
       ),
