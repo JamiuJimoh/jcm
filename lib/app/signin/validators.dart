@@ -17,7 +17,7 @@ class NonEmptyStringValidator implements StringValidator {
 
   @override
   bool confirmPasswordMatch(String password, String confirmPassword) {
-    return password == confirmPassword;
+    return password == confirmPassword && confirmPassword.length >= 7;
   }
 }
 
