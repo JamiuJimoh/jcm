@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:jamiu_class_manager/app/signin/form_submit_button.dart';
 
 import 'email_sign_in_form.dart';
-import 'social_sign_in_button.dart';
 
 class SignInPage extends StatelessWidget {
   @override
@@ -16,11 +14,11 @@ class SignInPage extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'Sign Up',
-                  style: Theme.of(context).textTheme.headline4,
-                ),
-                const SizedBox(height: 20.0),
+                // Text(
+                //   'Sign Up',
+                //   style: Theme.of(context).textTheme.headline4,
+                // ),
+                // const SizedBox(height: 20.0),
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(10.0),
@@ -28,7 +26,6 @@ class SignInPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20.0),
-               
               ],
             ),
           ),
