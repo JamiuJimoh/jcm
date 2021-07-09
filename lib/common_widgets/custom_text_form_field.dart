@@ -9,13 +9,18 @@ class CustomTextFormField extends StatelessWidget {
   final double? borderRadius;
   final String? labelText;
   final String? initialValue;
+  final String? errorText;
   final Widget? prefixIcon;
   final Widget? icon;
+  final Widget? suffixIcon;
+  final TextEditingController? controller;
   final BorderSide? borderSide;
   final TextInputType? keyboardType;
   final void Function(String?)? onSaved;
+  final void Function(String)? onChanged;
   final String? Function(String?)? validator;
   final bool obscureText;
+  final bool enabled;
 
   const CustomTextFormField({
     Key? key,
@@ -27,33 +32,43 @@ class CustomTextFormField extends StatelessWidget {
     this.borderRadius: 5.0,
     this.labelText,
     this.initialValue,
+    this.errorText,
     this.prefixIcon,
     this.icon,
+    this.suffixIcon,
     this.borderSide,
     this.keyboardType,
     this.onSaved,
+    this.onChanged,
+    this.controller,
     this.validator,
     this.obscureText: false,
+    this.enabled: true,
   }) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       initialValue: initialValue,
       cursorColor: cursorColor,
+      controller: controller,
       style: style,
       maxLines: maxLines,
       obscureText: obscureText,
       keyboardType: keyboardType,
       textInputAction: textInputAction,
       onSaved: onSaved,
+      onChanged: onChanged,
       decoration: InputDecoration(
         filled: true,
         fillColor: fillColor,
         prefixIcon: prefixIcon,
         icon: icon,
+        suffixIcon: suffixIcon,
         contentPadding:
             const EdgeInsets.symmetric(vertical: 18.0, horizontal: 15.0),
         labelText: labelText,
+        errorText: errorText,
+        enabled: enabled,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.all(
             Radius.circular(borderRadius!),
