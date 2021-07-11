@@ -13,6 +13,7 @@ class SignInPage extends StatelessWidget {
                 const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.max,
               children: [
                 // Text(
                 //   'Sign Up',
@@ -25,6 +26,13 @@ class SignInPage extends StatelessWidget {
                     child: EmailSignInForm.create(context),
                   ),
                 ),
+                // AnimatedContainer(
+                //   duration: const Duration(seconds: 2),
+                //       padding: const EdgeInsets.all(10.0),
+                //   child: Card(
+                //     child: EmailSignInForm.create(context),
+                //   ),
+                // ),
                 const SizedBox(height: 20.0),
               ],
             ),
