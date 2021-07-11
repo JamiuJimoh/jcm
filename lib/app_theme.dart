@@ -4,7 +4,7 @@ class AppTheme {
   AppTheme._();
 
   static AppTheme themeData = AppTheme._();
-
+// Color(0xFF003400);
   static const Color _darkPrimaryColor = Color(0xFF512DA8);
   static const Color _lightPrimaryColor = Color(0xFFD1C4E9);
   static const Color _primaryColor = Color(0xFF673AB7);
