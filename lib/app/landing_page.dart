@@ -21,7 +21,7 @@ class LandingPage extends StatelessWidget {
           if (user == null) {
             return SignInPage();
           }
-          return HomePage();
+          return HomePage.create(uid: user.uid);
         }
         return Scaffold(
           body: Center(child: CircularProgressIndicator()),

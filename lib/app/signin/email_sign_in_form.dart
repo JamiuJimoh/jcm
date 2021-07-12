@@ -10,15 +10,22 @@ import 'sign_in_text_field.dart';
 import 'social_sign_in_button.dart';
 
 class EmailSignInForm extends StatefulWidget {
-  EmailSignInForm({required this.model});
+  EmailSignInForm({
+    required this.model,
+    // required this.database,
+  });
   final EmailSignInChangeModel model;
+  // final Database database;
 
   static Widget create(BuildContext context) {
     final auth = Provider.of<AuthBase>(context, listen: false);
     return ChangeNotifierProvider<EmailSignInChangeModel>(
       create: (_) => EmailSignInChangeModel(auth: auth),
       child: Consumer<EmailSignInChangeModel>(
-        builder: (_, model, __) => EmailSignInForm(model: model),
+        builder: (_, model, __) => EmailSignInForm(
+          model: model,
+          // database: database,
+        ),
       ),
     );
   }
@@ -40,6 +47,14 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
   Future<void> _submit() async {
     try {
       await model.submit();
+      showModalBottomSheet(
+        isScrollControlled: true,
+        context: context,
+        builder: (_) => SizedBox(
+          height: MediaQuery.of(context).size.height * 0.9,
+          child: _userTypePicker(),
+        ),
+      );
     } on FirebaseAuthException catch (error) {
       showExceptionAlertDialog(
         context,
@@ -86,9 +101,57 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
   void _toggleFormType() {
     model.toggleFormType();
 
+    // if (model.formType == EmailSignInFormType.register) {
+    //   showModalBottomSheet(
+    //     isScrollControlled: true,
+    //     context: context,
+    //     builder: (_) => SizedBox(
+    //       height: MediaQuery.of(context).size.height * 0.9,
+    //       child: _userTypePicker(),
+    //     ),
+    //   );
+    // }
+
     _emailController.clear();
     _passwordController.clear();
     _confirmPasswordController.clear();
+  }
+
+  Widget _userTypePicker() {
+    return Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'Register as a',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.headline6,
+          ),
+          const SizedBox(height: 20.0),
+          FormSubmitButton(
+            child: Text(
+              'Teacher',
+              style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                    fontSize: 16.0,
+                    color: Colors.white,
+                  ),
+            ),
+          ),
+          const SizedBox(height: 15.0),
+          FormSubmitButton(
+            child: Text(
+              'Student',
+              style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                    fontSize: 16.0,
+                    color: Colors.white,
+                  ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -147,37 +210,37 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
           suffixIcon: _buildPasswordFieldSuffixIcon(),
           obscureText: _obscureText,
         ),
-      if (model.formType == EmailSignInFormType.register)
-        const SizedBox(height: 15.0),
-      if (model.formType == EmailSignInFormType.register)
-        Text(
-          'Register as a: ',
-          style: Theme.of(context).textTheme.bodyText1,
-        ),
-      if (model.formType == EmailSignInFormType.register)
-        const SizedBox(height: 10.0),
-      if (model.formType == EmailSignInFormType.register)
-        RadioListTile<UserType>(
-          title: Text('Teacher'),
-          value: UserType.teacher,
-          groupValue: model.userType,
-          onChanged: (user) {
-            setState(() {
-              model.userType = user;
-            });
-          },
-        ),
-      if (model.formType == EmailSignInFormType.register)
-        RadioListTile<UserType>(
-          title: Text('Student'),
-          value: UserType.student,
-          groupValue: model.userType,
-          onChanged: (user) {
-            setState(() {
-              model.userType = user;
-            });
-          },
-        ),
+      // if (model.formType == EmailSignInFormType.register)
+      //   const SizedBox(height: 15.0),
+      // if (model.formType == EmailSignInFormType.register)
+      //   Text(
+      //     'Register as a: ',
+      //     style: Theme.of(context).textTheme.bodyText1,
+      //   ),
+      // if (model.formType == EmailSignInFormType.register)
+      //   const SizedBox(height: 10.0),
+      // if (model.formType == EmailSignInFormType.register)
+      //   RadioListTile<UserType>(
+      //     title: Text('Teacher'),
+      //     value: UserType.teacher,
+      //     groupValue: model.userType,
+      //     onChanged: (user) {
+      //       setState(() {
+      //         model.userType = user;
+      //       });
+      //     },
+      //   ),
+      // if (model.formType == EmailSignInFormType.register)
+      //   RadioListTile<UserType>(
+      //     title: Text('Student'),
+      //     value: UserType.student,
+      //     groupValue: model.userType,
+      //     onChanged: (user) {
+      //       setState(() {
+      //         model.userType = user;
+      //       });
+      //     },
+      //   ),
       const SizedBox(height: 20.0),
       FormSubmitButton(
         child: _isLoading

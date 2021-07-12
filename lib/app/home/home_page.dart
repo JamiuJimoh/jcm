@@ -1,17 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:jamiu_class_manager/app/home/models/user.dart';
 import 'package:jamiu_class_manager/services/auth.dart';
+import 'package:jamiu_class_manager/services/database.dart';
 import 'package:provider/provider.dart';
 
 import 'course_container.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({required this.database});
+  final Database database;
+
+  static Widget create({required String uid}) {
+    return Provider<Database>(
+      create: (_) => FireStoreDatabase(uid: uid),
+      child: Consumer<Database>(
+        builder: (_, database, __) => HomePage(database: database),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Courses'),
+        title: StreamBuilder<List<UserModel>>(
+            stream: database.usersStream(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator();
+              }
+              if (snapshot.hasData) {
+                if (snapshot.data != null) {
+                  return Text(snapshot.data!.first.userType);
+                } else {
+                  return Text('Courses');
+                }
+              } else {
+                return CircularProgressIndicator();
+              }
+            }),
         actions: [
           Consumer<AuthBase>(
             builder: (_, auth, __) => IconButton(
@@ -25,6 +52,10 @@ class HomePage extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           print('add course');
+          final userType = UserModel(
+            userType: 'Teachers',
+          );
+          database.setUserType(userType);
         },
         child: Icon(Icons.add),
       ),
