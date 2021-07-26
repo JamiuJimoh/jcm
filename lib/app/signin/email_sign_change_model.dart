@@ -12,7 +12,6 @@ class EmailSignInChangeModel with EmailAndPasswordValidators, ChangeNotifier {
   String password;
   String confirmPassword;
   EmailSignInFormType formType;
-  UserType? userType;
   bool isLoading;
   bool submitted;
   final AuthBase auth;
@@ -22,7 +21,6 @@ class EmailSignInChangeModel with EmailAndPasswordValidators, ChangeNotifier {
     this.password: '',
     this.confirmPassword: '',
     this.formType: EmailSignInFormType.signIn,
-    this.userType,
     this.isLoading: false,
     this.submitted: false,
     required this.auth,
@@ -79,7 +77,6 @@ class EmailSignInChangeModel with EmailAndPasswordValidators, ChangeNotifier {
             password,
             confirmPassword,
           ) &&
-          userType != null &&
           !isLoading;
     }
   }
@@ -103,10 +100,6 @@ class EmailSignInChangeModel with EmailAndPasswordValidators, ChangeNotifier {
     return showErrorText ? invalidConfirmPasswordErrorText : null;
   }
 
-  String? get userErrorText {
-    var showErrorText = submitted && userType == null;
-    return showErrorText ? 'Register as a teacher or student' : null;
-  }
 
   void toggleFormType() {
     final formType = this.formType == EmailSignInFormType.signIn
@@ -116,7 +109,6 @@ class EmailSignInChangeModel with EmailAndPasswordValidators, ChangeNotifier {
       email: '',
       password: '',
       formType: formType,
-      userType: userType,
       isLoading: false,
       submitted: false,
     );
@@ -142,7 +134,6 @@ class EmailSignInChangeModel with EmailAndPasswordValidators, ChangeNotifier {
     this.password = password ?? this.password;
     this.confirmPassword = confirmPassword ?? this.confirmPassword;
     this.formType = formType ?? this.formType;
-    this.userType = userType ?? this.userType;
     this.isLoading = isLoading ?? this.isLoading;
     this.submitted = submitted ?? this.submitted;
 

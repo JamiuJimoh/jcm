@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import 'app/home/join_course_page.dart';
 import 'app/landing_page.dart';
 import 'app_theme.dart';
 import 'services/auth.dart';
@@ -27,6 +28,9 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
         theme: AppTheme.lightMode,
         home: LandingPage(),
+        routes: {
+          'join_course_page': (context) => JoinCoursePage(),
+        },
       ),
     );
   }
