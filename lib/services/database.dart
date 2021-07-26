@@ -1,14 +1,17 @@
 // import 'api_path.dart';
 // import 'firestore_service.dart';
 
-import 'package:jamiu_class_manager/app/home/models/user.dart';
+import 'package:jamiu_class_manager/app/home/models/course.dart';
+import 'package:jamiu_class_manager/app/home/models/user_model.dart';
 
 import 'api_path.dart';
 import 'firestore_service.dart';
 
 abstract class Database {
-  Future<void> setUserType(UserModel userModel);
-  Stream<List<UserModel>> usersStream();
+  Stream<List<Course>> coursesStream();
+  Future<void> setCourse(Course course);
+  // Future<void> setUserType(UserModel userModel);
+  // Stream<List<UserModel>> usersStream();
   // Stream<UserModel> userStream();
 //   Stream<List<Meal>> mealsStream();
 //   Future<void> deleteMeal(Meal meal);
@@ -27,18 +30,30 @@ class FireStoreDatabase implements Database {
   final _service = FirestoreService.instance;
 
   @override
-  Stream<List<UserModel>> usersStream() => _service.collectionStream<UserModel>(
-        path: APIPath.userTypes(uid: uid),
-        builder: (data, documentId) => UserModel.fromMap(data),
+  Stream<List<Course>> coursesStream() => _service.collectionStream<Course>(
+        path: APIPath.courses(uid),
+        builder: (data, documentId) => Course.fromMap(data, documentId),
       );
 
   @override
-  Future<void> setUserType(UserModel userModel) {
-    return _service.setData(
-      path: APIPath.userType(uid: uid, userTypeId: uid),
-      data: userModel.toMap(),
-    );
-  }
+  Future<void> setCourse(Course course) => _service.setData(
+        path: APIPath.course(uid, course.courseId),
+        data: course.toMap(),
+      );
+
+  // @override
+  // Stream<List<UserModel>> usersStream() => _service.collectionStream<UserModel>(
+  //       path: APIPath.userTypes(uid: uid),
+  //       builder: (data, documentId) => UserModel.fromMap(data),
+  //     );
+
+  // @override
+  // Future<void> setUserType(UserModel userModel) {
+  //   return _service.setData(
+  //     path: APIPath.userType(uid: uid, userTypeId: uid),
+  //     data: userModel.toMap(),
+  //   );
+  // }
 
 //   @override
 //   Future<void> deleteMeal(Meal meal) => _service.deleteData(

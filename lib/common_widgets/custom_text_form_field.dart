@@ -8,6 +8,7 @@ class CustomTextFormField extends StatelessWidget {
   final int? maxLines;
   final double? borderRadius;
   final String? labelText;
+  final String? hintText;
   final String? initialValue;
   final String? errorText;
   final Widget? prefixIcon;
@@ -31,6 +32,7 @@ class CustomTextFormField extends StatelessWidget {
     this.maxLines,
     this.borderRadius: 5.0,
     this.labelText,
+    this.hintText,
     this.initialValue,
     this.errorText,
     this.prefixIcon,
@@ -67,6 +69,7 @@ class CustomTextFormField extends StatelessWidget {
         contentPadding:
             const EdgeInsets.symmetric(vertical: 18.0, horizontal: 15.0),
         labelText: labelText,
+        hintText: hintText,
         errorText: errorText,
         enabled: enabled,
         border: OutlineInputBorder(
