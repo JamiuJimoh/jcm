@@ -1,5 +1,6 @@
 class Course {
   final String courseId;
+  final String courseIV;
   final String teacherId;
   final String courseTitle;
   final String courseCode;
@@ -7,6 +8,7 @@ class Course {
 
   Course({
     required this.courseId,
+    required this.courseIV,
     required this.teacherId,
     required this.courseTitle,
     required this.courseCode,
@@ -17,6 +19,7 @@ class Course {
     final String teacherId = data['teacherId'];
     final String courseTitle = data['courseTitle'];
     final String courseCode = data['courseCode'];
+    final String courseIV = data['courseIV'];
     final String teacherName = data['teacherName'];
 
     return Course(
@@ -24,6 +27,7 @@ class Course {
       teacherId: teacherId,
       courseTitle: courseTitle,
       courseCode: courseCode,
+      courseIV: courseIV,
       teacherName: teacherName,
     );
   }
@@ -34,12 +38,13 @@ class Course {
       'teacherId': teacherId,
       'courseTitle': courseTitle,
       'courseCode': courseCode,
+      'courseIV': courseIV,
       'teacherName': teacherName,
     };
   }
 
   @override
   String toString() {
-    return 'courseTitle: $courseTitle, courseCode: $courseCode';
+    return 'courseTitle: $courseTitle, courseCode: $courseCode, courseIV: $courseIV';
   }
 }
