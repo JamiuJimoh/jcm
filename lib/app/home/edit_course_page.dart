@@ -69,6 +69,14 @@ class _EditCoursePageState extends State<EditCoursePage> {
     return false;
   }
 
+  String _generateCourseIV({required String courseCode}) {
+    final teacherId = widget.auth.currentUser!.uid;
+
+    final courseIV =
+        teacherId.substring(10, 14) + courseCode.replaceAll(' ', '');
+    return courseIV;
+  }
+
   Future<void> _submit() async {
     if (_validateAndSaveForm()) {
       try {
@@ -78,9 +86,12 @@ class _EditCoursePageState extends State<EditCoursePage> {
         final courseId = widget.course?.courseId ?? documentIdFromCurrentDate();
         final teacherName = widget.auth.currentUser?.displayName ?? 'Jam';
         final teacherId = widget.auth.currentUser!.uid;
+        final courseIV =
+            _generateCourseIV(courseCode: _initialValue['courseCode']);
         final course = Course(
           courseId: courseId,
-          teacherId:teacherId,
+          teacherId: teacherId,
+          courseIV: courseIV,
           courseTitle: _initialValue['courseTitle'],
           courseCode: _initialValue['courseCode'],
           teacherName: teacherName,
