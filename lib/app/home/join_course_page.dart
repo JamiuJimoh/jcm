@@ -1,13 +1,43 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:jamiu_class_manager/common_widgets/custom_elevated_button.dart';
 import 'package:jamiu_class_manager/common_widgets/custom_text_form_field.dart';
+import 'package:jamiu_class_manager/common_widgets/show_exception_alert_dialog.dart';
 import 'package:jamiu_class_manager/services/auth.dart';
+import 'package:jamiu_class_manager/services/database.dart';
 import 'package:provider/provider.dart';
 
+import 'courses_bloc.dart';
 import 'validators.dart';
 
 class JoinCoursePage extends StatefulWidget with CourseValidators {
   static const id = 'join_course_page';
+
+  final CoursesBloc bloc;
+  final Database database;
+  final AuthBase auth;
+
+  JoinCoursePage(
+      {required this.bloc, required this.database, required this.auth});
+
+  static Future<void> create(BuildContext context) async {
+    final database = Provider.of<Database>(context, listen: false);
+    final auth = Provider.of<AuthBase>(context, listen: false);
+
+    await Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute(
+        builder: (_) => Provider<CoursesBloc>(
+          create: (_) => CoursesBloc(database: database, auth: auth),
+          child: Consumer<CoursesBloc>(
+            builder: (_, bloc, __) =>
+                JoinCoursePage(bloc: bloc, database: database, auth: auth),
+          ),
+        ),
+        fullscreenDialog: true,
+      ),
+    );
+  }
 
   @override
   _JoinCoursePageState createState() => _JoinCoursePageState();
@@ -18,7 +48,7 @@ class _JoinCoursePageState extends State<JoinCoursePage> {
 
   var _courseIV = '';
 
-  var _isLoading = false;
+  User get user => widget.auth.currentUser!;
 
   bool _validateAndSaveForm() {
     final form = _formKey.currentState!;
@@ -29,8 +59,28 @@ class _JoinCoursePageState extends State<JoinCoursePage> {
     return false;
   }
 
-  void _submit() {
-    if (_validateAndSaveForm()) {}
+  Future<void> _submit() async {
+    if (_validateAndSaveForm()) {
+      await widget.bloc.joinCourse(_courseIV);
+      widget.bloc.isErrorStream.listen((event) {
+        print('===========');
+        print(event);
+        if (event) {
+          showExceptionAlertDialog(
+            context,
+            title: 'Course not found',
+            exception: Exception('No course matches your course IV'),
+            defaultActionText: 'Dismiss',
+          );
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    widget.bloc.dispose();
   }
 
   @override
@@ -63,22 +113,18 @@ class _JoinCoursePageState extends State<JoinCoursePage> {
                       ),
                 ),
                 const SizedBox(height: 17.0),
-                Consumer<AuthBase>(builder: (_, auth, __) {
-                  final user = auth.currentUser!;
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage: user.photoURL == null
-                          ? AssetImage(
-                                  'assets/images/blank-profile-picture.png')
-                              as ImageProvider
-                          : NetworkImage(
-                              user.photoURL!,
-                            ),
-                    ),
-                    title: Text(user.displayName!),
-                    subtitle: Text(user.email!),
-                  );
-                }),
+                ListTile(
+                  leading: CircleAvatar(
+                    backgroundImage: user.photoURL == null
+                        ? AssetImage('assets/images/blank-profile-picture.png')
+                            as ImageProvider
+                        : NetworkImage(
+                            user.photoURL!,
+                          ),
+                  ),
+                  title: Text(user.displayName ?? 'User'),
+                  subtitle: Text(user.email!),
+                ),
                 const SizedBox(height: 15.0),
                 const Divider(
                   thickness: 0.8,

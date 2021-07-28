@@ -10,6 +10,7 @@ import 'firestore_service.dart';
 abstract class Database {
   Stream<List<Course>> coursesStream();
   Future<void> setCourse(Course course);
+  Future<void> joinCourse(Course course);
   // Future<void> setUserType(UserModel userModel);
   // Stream<List<UserModel>> usersStream();
   // Stream<UserModel> userStream();
@@ -31,13 +32,19 @@ class FireStoreDatabase implements Database {
 
   @override
   Stream<List<Course>> coursesStream() => _service.collectionStream<Course>(
-        path: APIPath.courses(uid),
+        path: APIPath.courses(),
         builder: (data, documentId) => Course.fromMap(data, documentId),
       );
 
   @override
   Future<void> setCourse(Course course) => _service.setData(
-        path: APIPath.course(uid, course.courseId),
+        path: APIPath.course(course.courseId),
+        data: course.toMap(),
+      );
+
+  @override
+  Future<void> joinCourse(Course course) => _service.setData(
+        path: APIPath.joinCourse(uid, course.courseId),
         data: course.toMap(),
       );
 

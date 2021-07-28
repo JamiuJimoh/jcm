@@ -28,9 +28,9 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
         theme: AppTheme.lightMode,
         home: LandingPage(),
-        routes: {
-          'join_course_page': (context) => JoinCoursePage(),
-        },
+        // routes: {
+        //   'join_course_page': (context) => JoinCoursePage(),
+        // },
       ),
     );
   }

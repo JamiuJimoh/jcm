@@ -117,7 +117,7 @@ class HomePage extends StatelessWidget {
               onPressed: () {
                 print('Join');
                 Navigator.of(context).pop();
-                Navigator.of(context).pushNamed(JoinCoursePage.id);
+                JoinCoursePage.create(context);
               },
               child: Text('Join a course', style: TextStyle(fontSize: 16.0)),
             ),

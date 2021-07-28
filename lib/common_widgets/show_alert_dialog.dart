@@ -19,13 +19,23 @@ Future<bool?> showAlertDialog({
         actions: [
           if (cancelActionText != null)
             TextButton(
-              child: Text(cancelActionText,
-                  style: Theme.of(context).textTheme.bodyText2),
+              child: Text(
+                cancelActionText,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyText2
+                    ?.copyWith(color: Theme.of(context).primaryColor),
+              ),
               onPressed: () => Navigator.of(context).pop(false),
             ),
           TextButton(
-            child: Text(defaultActionText,
-                style: Theme.of(context).textTheme.bodyText2),
+            child: Text(
+              defaultActionText,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyText2
+                  ?.copyWith(color: Theme.of(context).primaryColor),
+            ),
             onPressed: () => Navigator.of(context).pop(true),
           ),
         ],
