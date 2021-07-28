@@ -7,12 +7,13 @@ Future<void> showExceptionAlertDialog(
   BuildContext context, {
   required String title,
   required Exception exception,
+  String? defaultActionText: 'OK',
 }) =>
     showAlertDialog(
       context: context,
       title: title,
       content: _message(exception),
-      defaultActionText: 'OK',
+      defaultActionText: defaultActionText!,
     );
 
 String _message(Exception exception) {
