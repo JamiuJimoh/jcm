@@ -1,16 +1,17 @@
 // import 'api_path.dart';
 // import 'firestore_service.dart';
 
-import 'package:jamiu_class_manager/app/home/models/course.dart';
-import 'package:jamiu_class_manager/app/home/models/user_model.dart';
+import 'package:jamiu_class_manager/app/home/models/created_course.dart';
+import 'package:jamiu_class_manager/app/home/models/joined_course.dart';
 
 import 'api_path.dart';
 import 'firestore_service.dart';
 
 abstract class Database {
-  Stream<List<Course>> coursesStream();
-  Future<void> setCourse(Course course);
-  Future<void> joinCourse(Course course);
+  Stream<List<CreatedCourse>> coursesStream(bool isCreatedCourseCollectionStream);
+  Future<void> setCourse(CreatedCourse course);
+  Stream<List<JoinedCourse>> joinedCoursesStream();
+  Future<void> joinCourse(CreatedCourse course);
   // Future<void> setUserType(UserModel userModel);
   // Stream<List<UserModel>> usersStream();
   // Stream<UserModel> userStream();
@@ -31,19 +32,31 @@ class FireStoreDatabase implements Database {
   final _service = FirestoreService.instance;
 
   @override
-  Stream<List<Course>> coursesStream() => _service.collectionStream<Course>(
+  Stream<List<CreatedCourse>> coursesStream(bool isCreatedCourseCollectionStream) =>
+      _service.collectionStream<CreatedCourse>(
+        isCreatedCourseCollectionStream: isCreatedCourseCollectionStream,
+        uid: uid,
         path: APIPath.courses(),
-        builder: (data, documentId) => Course.fromMap(data, documentId),
+        builder: (data, documentId) => CreatedCourse.fromMap(data, documentId),
       );
 
   @override
-  Future<void> setCourse(Course course) => _service.setData(
+  Future<void> setCourse(CreatedCourse course) => _service.setData(
         path: APIPath.course(course.courseId),
         data: course.toMap(),
       );
 
   @override
-  Future<void> joinCourse(Course course) => _service.setData(
+  Stream<List<JoinedCourse>> joinedCoursesStream() =>
+      _service.collectionStream<JoinedCourse>(
+        isCreatedCourseCollectionStream: false,
+        uid: uid,
+        path: APIPath.joinedCourses(uid),
+        builder: (data, documentId) => JoinedCourse.fromMap(data, documentId),
+      );
+
+  @override
+  Future<void> joinCourse(CreatedCourse course) => _service.setData(
         path: APIPath.joinCourse(uid, course.courseId),
         data: course.toMap(),
       );

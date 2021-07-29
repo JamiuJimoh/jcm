@@ -15,9 +15,15 @@ class FirestoreService {
 
   Stream<List<T>> collectionStream<T>({
     required String path,
+    required String uid,
+    required bool isCreatedCourseCollectionStream,
     required T Function(Map<String, dynamic> data, String documentId) builder,
   }) {
-    final ref = FirebaseFirestore.instance.collection(path);
+    final ref = isCreatedCourseCollectionStream
+        ? FirebaseFirestore.instance
+            .collection(path)
+            .where('teacherId', isEqualTo: uid)
+        : FirebaseFirestore.instance.collection(path);
     final snapshot = ref.snapshots();
 
     return snapshot.map((snapshot) => snapshot.docs

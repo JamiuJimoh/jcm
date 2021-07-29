@@ -1,4 +1,4 @@
-class Course {
+  class JoinedCourse {
   final String courseId;
   final String courseIV;
   final String teacherId;
@@ -6,7 +6,7 @@ class Course {
   final String courseCode;
   final String teacherName;
 
-  Course({
+  JoinedCourse({
     required this.courseId,
     required this.courseIV,
     required this.teacherId,
@@ -15,14 +15,14 @@ class Course {
     required this.teacherName,
   });
 
-  factory Course.fromMap(Map<String, dynamic> data, String documentId) {
+  factory JoinedCourse.fromMap(Map<String, dynamic> data, String documentId) {
     final String teacherId = data['teacherId'];
     final String courseTitle = data['courseTitle'];
     final String courseCode = data['courseCode'];
     final String courseIV = data['courseIV'];
     final String teacherName = data['teacherName'];
 
-    return Course(
+    return JoinedCourse(
       courseId: documentId,
       teacherId: teacherId,
       courseTitle: courseTitle,
