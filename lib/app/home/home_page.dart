@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:jamiu_class_manager/app/home/list_items_builder.dart';
+import 'package:jamiu_class_manager/app/home/models/created_course.dart';
 import 'package:jamiu_class_manager/services/auth.dart';
 import 'package:jamiu_class_manager/services/database.dart';
 import 'package:provider/provider.dart';
@@ -7,9 +10,11 @@ import 'package:provider/provider.dart';
 import 'course_container.dart';
 import 'edit_course_page.dart';
 import 'join_course_page.dart';
-import 'models/course.dart';
+import 'models/joined_course.dart';
 
-class HomePage extends StatelessWidget {
+enum CourseType { joinedCourses, createdCourses }
+
+class HomePage extends StatefulWidget {
   const HomePage({required this.database});
   final Database database;
 
@@ -21,6 +26,13 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  var _courseType = CourseType.joinedCourses;
 
   Future<void> _buildModalBottomSheet(BuildContext context) {
     return showModalBottomSheet(
@@ -35,13 +47,51 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Courses'),
+        title: Text(
+          _courseType == CourseType.joinedCourses
+              ? 'Joined Courses'
+              : 'Created Courses',
+        ),
         actions: [
           Consumer<AuthBase>(
             builder: (_, auth, __) => IconButton(
               onPressed: auth.signOut,
               icon: Icon(Icons.logout),
             ),
+          ),
+          PopupMenuButton<CourseType>(
+            color: Theme.of(context).primaryColor,
+            initialValue: _courseType,
+            onSelected: (courseType) {
+              setState(() {
+                _courseType = courseType;
+              });
+            },
+            itemBuilder: (context) {
+              return [
+                PopupMenuItem(
+                  child: Text(
+                    'Joined Courses',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyText1
+                        ?.copyWith(color: Colors.white),
+                  ),
+                  value: CourseType.joinedCourses,
+
+                  // value: ,
+                ),
+                PopupMenuItem(
+                  child: Text('Created Courses',
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyText1
+                          ?.copyWith(color: Colors.white)),
+                  value: CourseType.createdCourses,
+                  // value: ,
+                ),
+              ];
+            },
           ),
         ],
       ),
@@ -55,47 +105,109 @@ class HomePage extends StatelessWidget {
 
   Widget _buildBody(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
-      child: StreamBuilder<List<Course>>(
-          stream: database.coursesStream(),
-          builder: (context, snapshot) {
-            return ListItemsBuilder<Course>(
-              snapshot: snapshot,
-              itemBuilder: (context, course) => CourseContainer(
-                courseCode: Text(
-                  course.courseCode,
-                  style: Theme.of(context).textTheme.headline6?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w400,
-                        fontSize: 20.0,
-                      ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                courseTitle: Text(
-                  course.courseTitle,
-                  style: Theme.of(context).textTheme.headline6?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w400,
-                        fontSize: 20.0,
-                      ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                teacherName: Text(
-                  course.teacherName,
-                  style: Theme.of(context).textTheme.bodyText1?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w300,
-                        fontSize: 15.0,
-                      ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                onPressed: () {
-                  print('hello');
-                },
-              ),
-            );
-          }),
+      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+      child: _courseType == CourseType.joinedCourses
+          ? _joinedCourseStreamBuilder()
+          : _createdCourseStreamBuilder(),
     );
+  }
+
+  Widget _createdCourseStreamBuilder() {
+    return StreamBuilder<List<CreatedCourse>>(
+        stream: widget.database.coursesStream(true),
+        builder: (context, snapshot) {
+          return ListItemsBuilder<CreatedCourse>(
+            emptyStateMessage: 'Tap the button below to create a class',
+            snapshot: snapshot,
+            itemBuilder: (context, course) => Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                CourseContainer(
+                  courseCode: Text(
+                    course.courseCode,
+                    style: Theme.of(context).textTheme.headline6?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w400,
+                          fontSize: 20.0,
+                        ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  courseTitle: Text(
+                    course.courseTitle,
+                    style: Theme.of(context).textTheme.headline6?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w400,
+                          fontSize: 20.0,
+                        ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  teacherName: Text(
+                    course.teacherName,
+                    style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w300,
+                          fontSize: 15.0,
+                        ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  onPressed: () {
+                    print('hello');
+                  },
+                ),
+                const SizedBox(height: 10.0),
+              ],
+            ),
+          );
+        });
+  }
+
+  Widget _joinedCourseStreamBuilder() {
+    return StreamBuilder<List<JoinedCourse>>(
+        stream: widget.database.joinedCoursesStream(),
+        builder: (context, snapshot) {
+          return ListItemsBuilder<JoinedCourse>(
+            emptyStateMessage: 'Tap the button below to join a class',
+            snapshot: snapshot,
+            itemBuilder: (context, course) => Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                CourseContainer(
+                  courseCode: Text(
+                    course.courseCode,
+                    style: Theme.of(context).textTheme.headline6?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w400,
+                          fontSize: 20.0,
+                        ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  courseTitle: Text(
+                    course.courseTitle,
+                    style: Theme.of(context).textTheme.headline6?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w400,
+                          fontSize: 20.0,
+                        ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  teacherName: Text(
+                    course.teacherName,
+                    style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w300,
+                          fontSize: 15.0,
+                        ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  onPressed: () {
+                    print('hello');
+                  },
+                ),
+                const SizedBox(height: 10.0),
+              ],
+            ),
+          );
+        });
   }
 
   Widget _modalBottomSheetChild(BuildContext context) {

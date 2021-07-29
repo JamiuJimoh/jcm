@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:jamiu_class_manager/common_widgets/custom_text_form_field.dart';
@@ -6,7 +8,7 @@ import 'package:jamiu_class_manager/services/auth.dart';
 import 'package:jamiu_class_manager/services/database.dart';
 import 'package:provider/provider.dart';
 
-import 'models/course.dart';
+import 'models/created_course.dart';
 import 'validators.dart';
 
 class EditCoursePage extends StatefulWidget with CourseValidators {
@@ -14,7 +16,7 @@ class EditCoursePage extends StatefulWidget with CourseValidators {
 
   final Database database;
   final AuthBase auth;
-  final Course? course;
+  final CreatedCourse? course;
 
   EditCoursePage({
     required this.database,
@@ -22,7 +24,8 @@ class EditCoursePage extends StatefulWidget with CourseValidators {
     this.course,
   });
 
-  static Future<void> show(BuildContext context, {Course? course}) async {
+  static Future<void> show(BuildContext context,
+      {CreatedCourse? course}) async {
     final database = Provider.of<Database>(context, listen: false);
     final auth = Provider.of<AuthBase>(context, listen: false);
 
@@ -70,10 +73,12 @@ class _EditCoursePageState extends State<EditCoursePage> {
   }
 
   String _generateCourseIV({required String courseCode}) {
+    Random random = new Random();
+    int randomNumber = random.nextInt(10);
     final teacherId = widget.auth.currentUser!.uid;
 
     final courseIV =
-        teacherId.substring(10, 14) + courseCode.replaceAll(' ', '');
+        teacherId.substring(randomNumber, 14) + courseCode.replaceAll(' ', '');
     return courseIV;
   }
 
@@ -88,7 +93,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
         final teacherId = widget.auth.currentUser!.uid;
         final courseIV =
             _generateCourseIV(courseCode: _initialValue['courseCode']);
-        final course = Course(
+        final course = CreatedCourse(
           courseId: courseId,
           teacherId: teacherId,
           courseIV: courseIV,

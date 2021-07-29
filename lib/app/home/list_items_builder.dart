@@ -7,11 +7,13 @@ typedef ItemWidgetBuilder<T> = Widget Function(BuildContext context, T items);
 class ListItemsBuilder<T> extends StatelessWidget {
   final AsyncSnapshot<List<T>> snapshot;
   final ItemWidgetBuilder<T> itemBuilder;
+  final String? emptyStateMessage;
 
   const ListItemsBuilder({
     Key? key,
     required this.snapshot,
     required this.itemBuilder,
+    this.emptyStateMessage: 'Create or join a class',
   }) : super(key: key);
 
   @override
@@ -23,7 +25,7 @@ class ListItemsBuilder<T> extends StatelessWidget {
       } else {
         return EmptyStateContent(
           title: 'No courses yet',
-          message: 'Create or join a class',
+          message: emptyStateMessage!,
         );
       }
     } else if (snapshot.hasError) {

@@ -1,5 +1,6 @@
 class APIPath {
-  static String course(String courseId) => '/courses/$courseId';
+  static String course( String courseId) =>
+      '/courses/$courseId';
 
   static String courses() => '/courses';
 
