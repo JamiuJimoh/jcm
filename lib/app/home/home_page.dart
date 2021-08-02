@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:jamiu_class_manager/app/home/list_items_builder.dart';
 import 'package:jamiu_class_manager/app/home/models/created_course.dart';
@@ -10,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'course_container.dart';
 import 'edit_course_page.dart';
 import 'join_course_page.dart';
+import 'menu_drawer.dart';
 import 'models/joined_course.dart';
 
 enum CourseType { joinedCourses, createdCourses }
@@ -46,19 +45,17 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: MenuDrawer(database: widget.database),
       appBar: AppBar(
+        centerTitle: true,
         title: Text(
-          _courseType == CourseType.joinedCourses
-              ? 'Joined Courses'
-              : 'Created Courses',
+          _courseType == CourseType.joinedCourses ? 'Enrolled' : 'Teaching',
+          style: Theme.of(context)
+              .textTheme
+              .headline6
+              ?.copyWith(color: Theme.of(context).secondaryHeaderColor),
         ),
         actions: [
-          Consumer<AuthBase>(
-            builder: (_, auth, __) => IconButton(
-              onPressed: auth.signOut,
-              icon: Icon(Icons.logout),
-            ),
-          ),
           PopupMenuButton<CourseType>(
             color: Theme.of(context).primaryColor,
             initialValue: _courseType,
