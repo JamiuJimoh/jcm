@@ -6,6 +6,7 @@ import 'package:jamiu_class_manager/services/database.dart';
 import 'package:provider/provider.dart';
 
 import 'course_container.dart';
+import 'course_page/course_page.dart';
 import 'edit_course_page.dart';
 import 'join_course_page.dart';
 import 'menu_drawer.dart';
@@ -147,9 +148,8 @@ class _HomePageState extends State<HomePage> {
                         ),
                     overflow: TextOverflow.ellipsis,
                   ),
-                  onPressed: () {
-                    print('hello');
-                  },
+                  onPressed: () =>
+                      CoursePage.show(context, createdCourse: course),
                 ),
                 const SizedBox(height: 10.0),
               ],
@@ -196,9 +196,8 @@ class _HomePageState extends State<HomePage> {
                         ),
                     overflow: TextOverflow.ellipsis,
                   ),
-                  onPressed: () {
-                    print('hello');
-                  },
+                  onPressed: () =>
+                      CoursePage.show(context, joinedCourse: course),
                 ),
                 const SizedBox(height: 10.0),
               ],
