@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../models/created_course.dart';
 import '../models/joined_course.dart';
-import 'classroom.dart';
-import 'classwork.dart';
+import 'classroom_tab/classroom.dart';
+import 'classwork_tab/classwork.dart';
 import 'people.dart';
 
 class CoursePage extends StatelessWidget {
@@ -26,13 +26,11 @@ class CoursePage extends StatelessWidget {
     );
   }
 
-  final List<Widget> _pages = [Classroom(), Classwork(), People()];
-
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       initialIndex: 0,
-      length: _pages.length,
+      length: 3,
       child: Scaffold(
         appBar: AppBar(
           title:
@@ -45,6 +43,18 @@ class CoursePage extends StatelessWidget {
               Tab(icon: Icon(Icons.people_alt_outlined), text: 'People'),
             ],
           ),
+        ),
+        body: TabBarView(
+          children: [
+            ClassroomWidget.create(
+              context,
+              courseID: joinedCourse?.courseId == null
+                  ? createdCourse!.courseId
+                  : joinedCourse!.courseId,
+            ),
+            Classwork.create(context),
+            People(),
+          ],
         ),
       ),
     );

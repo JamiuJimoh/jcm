@@ -1,14 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jamiu_class_manager/common_widgets/custom_elevated_button.dart';
 import 'package:jamiu_class_manager/common_widgets/custom_text_form_field.dart';
 import 'package:jamiu_class_manager/common_widgets/show_exception_alert_dialog.dart';
+import 'package:jamiu_class_manager/common_widgets/user_circle_avatar.dart';
 import 'package:jamiu_class_manager/services/auth.dart';
 import 'package:jamiu_class_manager/services/database.dart';
 import 'package:provider/provider.dart';
 
 import 'course_change_notifier.dart';
+import 'courses_bloc.dart';
 import 'validators.dart';
 
 class JoinCoursePage extends StatefulWidget with CourseValidators {
@@ -16,34 +19,47 @@ class JoinCoursePage extends StatefulWidget with CourseValidators {
 
   final Database database;
   final AuthBase auth;
-  final CourseChangeNotifier change;
+  // final CourseChangeNotifier change;
 
   JoinCoursePage({
     required this.database,
     required this.auth,
-    required this.change,
+    // required this.change,
   });
 
   static Future<void> create(BuildContext context) async {
     final database = Provider.of<Database>(context, listen: false);
     final auth = Provider.of<AuthBase>(context, listen: false);
 
-    await Navigator.of(context, rootNavigator: true).push(
-      // TODO: FIX 'WRONG COURSEIV ERROR' ERROR.
+    await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => ChangeNotifierProvider<CourseChangeNotifier>(
-          create: (_) => CourseChangeNotifier(),
-          child: Consumer<CourseChangeNotifier>(
-            builder: (_, change, __) => JoinCoursePage(
-              database: database,
-              auth: auth,
-              change: change,
-            ),
+        builder: (_) => BlocProvider<CoursesBloc>(
+          create: (_) => CoursesBloc(database: database, auth: auth),
+          child: JoinCoursePage(
+            database: database,
+            auth: auth,
+            // change: change,
           ),
         ),
         fullscreenDialog: true,
       ),
     );
+    // await Navigator.of(context).push(
+    //   // TODO: FIX 'WRONG COURSEIV ERROR' ERROR.
+    //   MaterialPageRoute(
+    //     builder: (_) => ChangeNotifierProvider<CourseChangeNotifier>(
+    //       create: (_) => CourseChangeNotifier(),
+    //       child: Consumer<CourseChangeNotifier>(
+    //         builder: (_, change, __) => JoinCoursePage(
+    //           database: database,
+    //           auth: auth,
+    //           change: change,
+    //         ),
+    //       ),
+    //     ),
+    //     fullscreenDialog: true,
+    //   ),
+    // );
   }
 
   @override
@@ -68,11 +84,60 @@ class _JoinCoursePageState extends State<JoinCoursePage> {
 
   Future<void> _submit() async {
     if (_validateAndSaveForm()) {
-      // await widget.bloc.joinCourse(_courseIV);
-      // widget.bloc.isErrorStream.listen((event) {
-      //   print('===========');
-      //   print(event);
-      // if (event) {
+      //  await BlocBuilder<CoursesBloc, bool>(
+      //    builder: (context, state)=> context.read<CoursesBloc>().joinCourse(_courseIV),
+      //   );
+      await context.read<CoursesBloc>().joinCourse(_courseIV);
+      // ;
+
+      // context.read<CoursesBloc>().didEmitError();
+      // BlocListener<CoursesBloc, bool>(
+      //   listener: (context, state) {
+      //     print('===========');
+      //     print(state);
+      //     if (state) {
+      //       return null;
+      //     } else {
+      //       showExceptionAlertDialog(
+      //         context,
+      //         title: 'Course not found',
+      //         exception: Exception('No course matches your course IV'),
+      //         defaultActionText: 'Dismiss',
+      //       );
+      //     }
+      //   },
+      //   // child: Container(),
+      // );
+      BlocListener<CoursesBloc, bool>(
+        listener: (context, state) {
+          print('===========');
+          print(state);
+          if (!state) {
+            showExceptionAlertDialog(
+              context,
+              title: 'Course not found',
+              exception: Exception('No course matches your course IV'),
+              defaultActionText: 'Dismiss',
+            );
+          }
+        },
+        // child: Container(),
+      );
+      // if (context.read<CoursesBloc>().didEmitError()) {
+      // showExceptionAlertDialog(
+      //   context,
+      //   title: 'Course not found',
+      //   exception: Exception('No course matches your course IV'),
+      //   defaultActionText: 'Dismiss',
+      // );
+      // }
+
+      // await widget.change.joinCourse(
+      //   courseIV: _courseIV,
+      //   database: widget.database,
+      //   auth: widget.auth,
+      // );
+      // if (widget.change.isError) {
       //   showExceptionAlertDialog(
       //     context,
       //     title: 'Course not found',
@@ -80,20 +145,6 @@ class _JoinCoursePageState extends State<JoinCoursePage> {
       //     defaultActionText: 'Dismiss',
       //   );
       // }
-      // });
-      await widget.change.joinCourse(
-        courseIV: _courseIV,
-        database: widget.database,
-        auth: widget.auth,
-      );
-      if (widget.change.isError) {
-        showExceptionAlertDialog(
-          context,
-          title: 'Course not found',
-          exception: Exception('No course matches your course IV'),
-          defaultActionText: 'Dismiss',
-        );
-      }
     }
   }
 
@@ -134,14 +185,7 @@ class _JoinCoursePageState extends State<JoinCoursePage> {
                 ),
                 const SizedBox(height: 17.0),
                 ListTile(
-                  leading: CircleAvatar(
-                    backgroundImage: user.photoURL == null
-                        ? AssetImage('assets/images/blank-profile-picture.png')
-                            as ImageProvider
-                        : NetworkImage(
-                            user.photoURL!,
-                          ),
-                  ),
+                  leading: UserCircleAvatar(),
                   title: Text(user.displayName ?? 'User'),
                   subtitle: Text(user.email!),
                 ),

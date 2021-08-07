@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:jamiu_class_manager/common_widgets/show_alert_dialog.dart';
 import 'package:jamiu_class_manager/common_widgets/show_exception_alert_dialog.dart';
+import 'package:jamiu_class_manager/common_widgets/user_circle_avatar.dart';
 import 'package:jamiu_class_manager/services/auth.dart';
 import 'package:jamiu_class_manager/services/database.dart';
 import 'package:provider/provider.dart';
@@ -153,15 +154,7 @@ class MenuDrawer extends StatelessWidget {
       alignment: Alignment.center,
       child: Column(
         children: [
-          CircleAvatar(
-            radius: 50.0,
-            backgroundImage: user.photoURL == null
-                ? AssetImage('assets/images/blank-profile-picture.png')
-                    as ImageProvider
-                : NetworkImage(
-                    user.photoURL!,
-                  ),
-          ),
+          UserCircleAvatar(radius: 50.0),
           const SizedBox(height: 15.0),
           Text(
             user.displayName != null

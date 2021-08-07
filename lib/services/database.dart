@@ -1,6 +1,7 @@
 // import 'api_path.dart';
 // import 'firestore_service.dart';
 
+import 'package:jamiu_class_manager/app/home/models/classroom.dart';
 import 'package:jamiu_class_manager/app/home/models/created_course.dart';
 import 'package:jamiu_class_manager/app/home/models/joined_course.dart';
 
@@ -8,10 +9,13 @@ import 'api_path.dart';
 import 'firestore_service.dart';
 
 abstract class Database {
-  Stream<List<CreatedCourse>> coursesStream(bool isCreatedCourseCollectionStream);
+  Stream<List<CreatedCourse>> coursesStream(
+      bool isCreatedCourseCollectionStream);
   Future<void> setCourse(CreatedCourse course);
+  Future<void> setCourseConvo(Classroom classroom);
   Stream<List<JoinedCourse>> joinedCoursesStream();
   Future<void> joinCourse(CreatedCourse course);
+  Stream<List<Classroom>> classroomStream();
   // Future<void> setUserType(UserModel userModel);
   // Stream<List<UserModel>> usersStream();
   // Stream<UserModel> userStream();
@@ -32,7 +36,8 @@ class FireStoreDatabase implements Database {
   final _service = FirestoreService.instance;
 
   @override
-  Stream<List<CreatedCourse>> coursesStream(bool isCreatedCourseCollectionStream) =>
+  Stream<List<CreatedCourse>> coursesStream(
+          bool isCreatedCourseCollectionStream) =>
       _service.collectionStream<CreatedCourse>(
         isCreatedCourseCollectionStream: isCreatedCourseCollectionStream,
         uid: uid,
@@ -44,6 +49,21 @@ class FireStoreDatabase implements Database {
   Future<void> setCourse(CreatedCourse course) => _service.setData(
         path: APIPath.course(course.courseId),
         data: course.toMap(),
+      );
+
+  @override
+  Future<void> setCourseConvo(Classroom classroom) => _service.setData(
+        path: APIPath.courseConvo(classroom.classroomID),
+        data: classroom.toMap(),
+      );
+
+  @override
+  Stream<List<Classroom>> classroomStream() =>
+      _service.collectionStream<Classroom>(
+        path: APIPath.courseConvos(),
+        uid: uid,
+        isCreatedCourseCollectionStream: false,
+        builder: (data, documentId) => Classroom.fromMap(data, documentId),
       );
 
   @override
