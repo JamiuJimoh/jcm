@@ -22,6 +22,7 @@ class CustomTextFormField extends StatelessWidget {
   final String? Function(String?)? validator;
   final bool obscureText;
   final bool enabled;
+  final bool? autofocus;
 
   const CustomTextFormField({
     Key? key,
@@ -46,11 +47,13 @@ class CustomTextFormField extends StatelessWidget {
     this.validator,
     this.obscureText: false,
     this.enabled: true,
+    this.autofocus: false,
   }) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       initialValue: initialValue,
+      autofocus: autofocus!,
       cursorColor: cursorColor,
       controller: controller,
       style: style,

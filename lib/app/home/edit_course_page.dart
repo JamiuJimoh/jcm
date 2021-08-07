@@ -29,7 +29,7 @@ class EditCoursePage extends StatefulWidget with CourseValidators {
     final database = Provider.of<Database>(context, listen: false);
     final auth = Provider.of<AuthBase>(context, listen: false);
 
-    await Navigator.of(context, rootNavigator: true).push(
+    await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) =>
             EditCoursePage(database: database, auth: auth, course: course),
