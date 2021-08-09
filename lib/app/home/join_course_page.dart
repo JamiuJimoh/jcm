@@ -19,11 +19,13 @@ class JoinCoursePage extends StatefulWidget with CourseValidators {
 
   final Database database;
   final AuthBase auth;
+  final CoursesBloc bloc;
   // final CourseChangeNotifier change;
 
   JoinCoursePage({
     required this.database,
     required this.auth,
+    required this.bloc,
     // required this.change,
   });
 
@@ -33,12 +35,15 @@ class JoinCoursePage extends StatefulWidget with CourseValidators {
 
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => BlocProvider<CoursesBloc>(
+        builder: (_) => Provider<CoursesBloc>(
           create: (_) => CoursesBloc(database: database, auth: auth),
-          child: JoinCoursePage(
-            database: database,
-            auth: auth,
-            // change: change,
+          child: Consumer<CoursesBloc>(
+            builder: (_, bloc, __) => JoinCoursePage(
+              database: database,
+              auth: auth,
+              bloc: bloc,
+              // change: change,
+            ),
           ),
         ),
         fullscreenDialog: true,
@@ -87,43 +92,25 @@ class _JoinCoursePageState extends State<JoinCoursePage> {
       //  await BlocBuilder<CoursesBloc, bool>(
       //    builder: (context, state)=> context.read<CoursesBloc>().joinCourse(_courseIV),
       //   );
-      await context.read<CoursesBloc>().joinCourse(_courseIV);
-      // ;
+      await widget.bloc.joinCourse(_courseIV);
 
-      // context.read<CoursesBloc>().didEmitError();
-      // BlocListener<CoursesBloc, bool>(
-      //   listener: (context, state) {
-      //     print('===========');
-      //     print(state);
-      //     if (state) {
-      //       return null;
-      //     } else {
-      //       showExceptionAlertDialog(
-      //         context,
-      //         title: 'Course not found',
-      //         exception: Exception('No course matches your course IV'),
-      //         defaultActionText: 'Dismiss',
-      //       );
-      //     }
-      //   },
-      //   // child: Container(),
-      // );
-      BlocListener<CoursesBloc, bool>(
-        listener: (context, state) {
-          print('===========');
-          print(state);
-          if (!state) {
-            showExceptionAlertDialog(
-              context,
-              title: 'Course not found',
-              exception: Exception('No course matches your course IV'),
-              defaultActionText: 'Dismiss',
-            );
-          }
-        },
-        // child: Container(),
-      );
-      // if (context.read<CoursesBloc>().didEmitError()) {
+      widget.bloc.boolStream.listen((event) {
+        print('=============');
+        print(event);
+        print(event.last);
+        if (event.last) {
+          showExceptionAlertDialog(
+            context,
+            title: 'Course not found',
+            exception: Exception('No course matches your course IV'),
+            defaultActionText: 'Dismiss',
+          );
+        }
+        widget.bloc.drainStream();
+      });
+
+      // print(snapshot.data!);
+      // if (snapshot.data!) {
       // showExceptionAlertDialog(
       //   context,
       //   title: 'Course not found',
@@ -131,28 +118,26 @@ class _JoinCoursePageState extends State<JoinCoursePage> {
       //   defaultActionText: 'Dismiss',
       // );
       // }
-
-      // await widget.change.joinCourse(
-      //   courseIV: _courseIV,
-      //   database: widget.database,
-      //   auth: widget.auth,
+      // await widget.bloc.boolStream.listen((event) {
+      //   print('===========');
+      //   print(event);
+      //   if (!event) {
+      // showExceptionAlertDialog(
+      //   context,
+      //   title: 'Course not found',
+      //   exception: Exception('No course matches your course IV'),
+      //   defaultActionText: 'Dismiss',
       // );
-      // if (widget.change.isError) {
-      //   showExceptionAlertDialog(
-      //     context,
-      //     title: 'Course not found',
-      //     exception: Exception('No course matches your course IV'),
-      //     defaultActionText: 'Dismiss',
-      //   );
-      // }
+      //   }
+      // });
     }
   }
 
-  // @override
-  // void dispose() {
-  //   super.dispose();
-  //   widget.bloc.dispose();
-  // }
+  @override
+  void dispose() {
+    super.dispose();
+    widget.bloc.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

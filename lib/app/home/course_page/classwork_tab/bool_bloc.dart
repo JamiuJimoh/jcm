@@ -1,10 +1,12 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:rxdart/rxdart.dart';
 
-class BoolCubit extends Cubit<int> {
-  BoolCubit() : super(0);
+class BoolBloc {
+  final _boolBehaviorSubject = BehaviorSubject<bool>();
 
-  void truthify() => emit(state +1);
-  void falsify() => emit(state-1);
-
-
+  Stream<bool> get boolStream => _boolBehaviorSubject.stream;
+  void addBoolVal() => _boolBehaviorSubject.add(true);
+  void dispose() {
+    _boolBehaviorSubject.close();
+  }
 }

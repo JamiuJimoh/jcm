@@ -9,11 +9,19 @@ import 'package:rxdart/rxdart.dart';
 import 'models/created_course.dart';
 import 'models/joined_course.dart';
 
-class CoursesBloc extends Cubit<bool> {
-  CoursesBloc({required this.database, required this.auth}) : super(false);
+class CoursesBloc {
+  CoursesBloc({required this.database, required this.auth});
   // CoursesBloc({required this.database});
   final Database database;
   final AuthBase auth;
+
+  final _boolBehaviorSubject = BehaviorSubject<List<bool>>();
+
+  Stream<List<bool>> get boolStream => _boolBehaviorSubject.stream;
+  // void addBoolVal() => _boolBehaviorSubject.add(true);
+  void dispose() {
+    _boolBehaviorSubject.close();
+  }
 
   // final AuthBase auth;
 
@@ -26,7 +34,7 @@ class CoursesBloc extends Cubit<bool> {
   //   _isErrorController.close();
   // }
 
-  void didEmitError() => emit(state);
+  void drainStream() => _boolBehaviorSubject.drain();
 
   Future<void> joinCourse(String courseIV) async {
     database.coursesStream(false).listen((event) {
@@ -36,13 +44,15 @@ class CoursesBloc extends Cubit<bool> {
             course.teacherId != auth.currentUser?.uid,
       );
       if (foundCourse == null) {
-        emit(true);
+        _boolBehaviorSubject.add([true]);
       } else {
         database.joinCourse(foundCourse);
-        emit(false);
+        _boolBehaviorSubject.add([false]);
       }
     });
   }
+
+  // void addNull() => _boolBehaviorSubject.add(null);
 
   // Stream<List<CreatedCourse>> get createdCourse async{
   //  await database.coursesStream().listen((createdCourses) {
@@ -52,3 +62,12 @@ class CoursesBloc extends Cubit<bool> {
   //   });
   // }
 }
+// class BoolBloc {
+//   final _boolBehaviorSubject = BehaviorSubject<bool>();
+
+//   Stream<bool> get boolStream => _boolBehaviorSubject.stream;
+//   void addBoolVal() => _boolBehaviorSubject.add(true);
+//   void dispose() {
+//     _boolBehaviorSubject.close();
+//   }
+// }

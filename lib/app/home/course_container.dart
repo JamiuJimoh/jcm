@@ -25,7 +25,7 @@ class CourseContainer extends CustomContainer {
               Colors.deepPurple,
             ],
           ),
-          height: 160.0,
+          maxHeight: 160.0,
           onPressed: onPressed,
           padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 15.0),
         );

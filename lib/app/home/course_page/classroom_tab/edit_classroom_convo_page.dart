@@ -11,11 +11,13 @@ class EditClassroomConvoPage extends StatefulWidget {
   EditClassroomConvoPage({
     required this.database,
     required this.courseID,
+    required this.auth,
     this.classroom,
   });
   final Database database;
   final String courseID;
   final Classroom? classroom;
+  final AuthBase auth;
 
   @override
   _EditClassroomConvoPageState createState() => _EditClassroomConvoPageState();
@@ -31,6 +33,7 @@ class EditClassroomConvoPage extends StatefulWidget {
           create: (_) => FireStoreDatabase(uid: auth.currentUser!.uid),
           child: Consumer<Database>(
             builder: (_, database, __) => EditClassroomConvoPage(
+              auth: auth,
               database: database,
               classroom: classroom,
               courseID: courseID,
@@ -46,8 +49,6 @@ class EditClassroomConvoPage extends StatefulWidget {
 class _EditClassroomConvoPageState extends State<EditClassroomConvoPage> {
   final _formKey = GlobalKey<FormState>();
 
-  var _isEmptyTextField = true;
-
   var _isLoading = false;
 
   String? _message;
@@ -62,6 +63,7 @@ class _EditClassroomConvoPageState extends State<EditClassroomConvoPage> {
 
   bool _validateAndSaveForm() {
     final form = _formKey.currentState!;
+
     if (form.validate()) {
       form.save();
       return true;
@@ -70,6 +72,8 @@ class _EditClassroomConvoPageState extends State<EditClassroomConvoPage> {
   }
 
   Future<void> _send() async {
+    print('message=======');
+    print(_message);
     if (_validateAndSaveForm()) {
       try {
         setState(() {
@@ -77,23 +81,20 @@ class _EditClassroomConvoPageState extends State<EditClassroomConvoPage> {
         });
         final classroomID =
             widget.classroom?.classroomID ?? documentIdFromCurrentDate();
-        if (_message == null) {
-          setState(() {
-            _isEmptyTextField == true;
-          });
-        } else {
-          final classroom = Classroom(
-            classroomID: classroomID,
-            courseID: widget.courseID,
-            message: _message!,
-          );
-          await widget.database.setCourseConvo(classroom);
-          setState(() {
-            _isLoading = false;
-          });
-          print(classroom);
-          Navigator.of(context).pop();
-        }
+        print(widget.auth.currentUser);
+        final classroom = Classroom(
+          time: documentIdFromCurrentDate(),
+          sender: widget.auth.currentUser!.displayName ?? 'User',
+          classroomID: classroomID,
+          courseID: widget.courseID,
+          message: _message!,
+        );
+        await widget.database.setCourseConvo(classroom);
+        setState(() {
+          _isLoading = false;
+        });
+        print(classroom);
+        Navigator.of(context).pop();
       } on FirebaseException catch (e) {
         setState(() {
           _isLoading = false;
@@ -112,13 +113,15 @@ class _EditClassroomConvoPageState extends State<EditClassroomConvoPage> {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          IconButton(
-            onPressed: _send,
-            icon: Icon(
-              Icons.send,
-              // color: _isEmptyTextField ? Colors.grey : null,
-            ),
-          ),
+          _isLoading
+              ? CircularProgressIndicator()
+              : IconButton(
+                  onPressed: _send,
+                  icon: Icon(
+                    Icons.send,
+                    // color: _isEmptyTextField ? Colors.grey : null,
+                  ),
+                ),
         ],
       ),
       body: Padding(
@@ -136,11 +139,8 @@ class _EditClassroomConvoPageState extends State<EditClassroomConvoPage> {
                   return null;
                 }
               }
+              return '';
             },
-            // onSaved: (value) => _initialValue['courseTitle'] = value,
-            // validator: (value) => widget.courseTitleValidator.isValid(value!)
-            //     ? null
-            //     : widget.invalidCourseTitleErrorText,
           ),
         ),
       ),
