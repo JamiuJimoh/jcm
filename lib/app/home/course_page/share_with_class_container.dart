@@ -10,7 +10,7 @@ class ShareWithClassContainer extends CustomContainer {
           borderRadius: 5.0,
           onPressed: onPressed,
           width: double.infinity,
-          height: 65.0,
+          minHeight: 65.0,
           padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 15.0),
           borderColor: borderColor,
           child: child,

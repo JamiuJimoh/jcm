@@ -14,7 +14,7 @@ abstract class Database {
   Stream<List<JoinedCourse>> joinedCoursesStream();
   Future<void> joinCourse(CreatedCourse course);
   Stream<List<Classroom>> classroomStream(String courseID);
-  Stream<List<UserProfile>> userProfilesStream();
+  Stream<List<UserProfile>> userProfilesStream({bool isCurrentUser: false});
   Future<void> setUserProfile(UserProfile user, String uid);
   // Future<void> setUserType(UserModel userModel);
   // Stream<List<UserModel>> usersStream();
@@ -52,9 +52,9 @@ class FireStoreDatabase implements Database {
       );
 
   @override
-  Stream<List<UserProfile>> userProfilesStream() =>
-      _service.collectionStream<UserProfile>(
-        isCreatedCourseCollectionStream: false,
+  Stream<List<UserProfile>> userProfilesStream({bool isCurrentUser: false}) =>
+      _service.userCollectionStream<UserProfile>(
+        isCurrentUser: isCurrentUser,
         uid: uid!,
         path: APIPath.users(),
         builder: (data, documentId) => UserProfile.fromMap(data, documentId),
