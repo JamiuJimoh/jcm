@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import 'course_container.dart';
 import 'course_page/course_page.dart';
+import 'courses_bloc.dart';
 import 'edit_course_page.dart';
 import 'join_course_page.dart';
 import 'menu_drawer.dart';
@@ -15,14 +16,22 @@ import 'models/joined_course.dart';
 enum CourseType { joinedCourses, createdCourses }
 
 class HomePage extends StatefulWidget {
-  const HomePage({required this.database});
+  const HomePage({required this.database, required this.bloc});
   final Database database;
+  final CoursesBloc bloc;
 
-  static Widget create({required String uid}) {
+  static Widget create(BuildContext context, {required String uid}) {
+    final auth = Provider.of<AuthBase>(context, listen: false);
+
     return Provider<Database>(
       create: (_) => FireStoreDatabase(uid: uid),
       child: Consumer<Database>(
-        builder: (_, database, __) => HomePage(database: database),
+        builder: (_, database, __) => Provider<CoursesBloc>(
+          create: (_) => CoursesBloc(database: database, auth: auth),
+          child: Consumer<CoursesBloc>(
+            builder: (_, bloc, __) => HomePage(database: database, bloc: bloc),
+          ),
+        ),
       ),
     );
   }
@@ -112,7 +121,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _createdCourseStreamBuilder() {
     return StreamBuilder<List<CreatedCourse>>(
-        stream: widget.database.coursesStream(true),
+        stream: widget.bloc.createdCourseStreamCombiner,
         builder: (context, snapshot) {
           return ListItemsBuilder<CreatedCourse>(
             emptyStateMessage: 'Tap the button below to create a class',
@@ -160,7 +169,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _joinedCourseStreamBuilder() {
     return StreamBuilder<List<JoinedCourse>>(
-        stream: widget.database.joinedCoursesStream(),
+        stream: widget.bloc.joinedCourseStreamCombiner,
         builder: (context, snapshot) {
           return ListItemsBuilder<JoinedCourse>(
             emptyStateMessage: 'Tap the button below to join a class',

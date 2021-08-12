@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:jamiu_class_manager/app/home/models/classroom.dart';
+import 'package:jamiu_class_manager/app/utils/months.dart';
 import 'package:jamiu_class_manager/common_widgets/custom_text_form_field.dart';
 import 'package:jamiu_class_manager/common_widgets/show_exception_alert_dialog.dart';
 import 'package:jamiu_class_manager/services/auth.dart';
@@ -83,8 +84,8 @@ class _EditClassroomConvoPageState extends State<EditClassroomConvoPage> {
             widget.classroom?.classroomID ?? documentIdFromCurrentDate();
         print(widget.auth.currentUser);
         final classroom = Classroom(
-          time: documentIdFromCurrentDate(),
-          sender: widget.auth.currentUser!.displayName ?? 'User',
+          createdAt: Timestamp.now(),
+          senderID: widget.auth.currentUser!.uid,
           classroomID: classroomID,
           courseID: widget.courseID,
           message: _message!,

@@ -106,7 +106,7 @@ class _JoinCoursePageState extends State<JoinCoursePage> {
             defaultActionText: 'Dismiss',
           );
         }
-        widget.bloc.drainStream();
+        // widget.bloc.drainStream();
       });
 
       // print(snapshot.data!);

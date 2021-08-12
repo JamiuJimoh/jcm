@@ -1,7 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:jamiu_class_manager/app/utils/months.dart';
 import 'package:jamiu_class_manager/common_widgets/custom_container.dart';
-import 'package:intl/date_symbol_data_local.dart';
 
 class MessageContainer extends CustomContainer {
   MessageContainer(
@@ -10,7 +10,7 @@ class MessageContainer extends CustomContainer {
     required Color borderColor,
     required Widget leadingAvatar,
     required String sender,
-    // required String time,
+    required Timestamp time,
   }) : super(
           borderRadius: 5.0,
           maxHeight: 500.0,
@@ -31,11 +31,12 @@ class MessageContainer extends CustomContainer {
                         .bodyText1
                         ?.copyWith(fontSize: 16.0),
                   ),
-                  // subtitle: Row(
-                  //   children: [
-                  //     Text(time),
-                  //   ],
-                  // ),
+                  subtitle: Row(
+                    children: [
+                      Text(
+                          '${Months.getMonth(time.toDate().month)} ${time.toDate().day}'),
+                    ],
+                  ),
                   leading: leadingAvatar,
                 ),
               ),

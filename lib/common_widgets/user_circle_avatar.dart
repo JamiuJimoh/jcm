@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 class UserCircleAvatar extends StatelessWidget {
   UserCircleAvatar({this.radius});
   final double? radius;
-  
+
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthBase>(
@@ -17,7 +17,11 @@ class UserCircleAvatar extends StatelessWidget {
             : NetworkImage(
                 auth.currentUser!.photoURL!,
               ),
+        onBackgroundImageError: (obj, str) =>
+            AssetImage('assets/images/blank-profile-picture.png'),
       ),
+
+      // userCircleAvatar(auth.currentUser?.photoURL),
     );
   }
 }
