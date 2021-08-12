@@ -73,8 +73,6 @@ class _EditClassroomConvoPageState extends State<EditClassroomConvoPage> {
   }
 
   Future<void> _send() async {
-    print('message=======');
-    print(_message);
     if (_validateAndSaveForm()) {
       try {
         setState(() {

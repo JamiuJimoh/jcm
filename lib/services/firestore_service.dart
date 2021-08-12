@@ -31,6 +31,24 @@ class FirestoreService {
         .toList());
   }
 
+  Stream<List<T>> userCollectionStream<T>({
+    required String path,
+    required String uid,
+     bool? isCurrentUser:false,
+    required T Function(Map<String, dynamic> data, String documentId) builder,
+  }) {
+    final ref = isCurrentUser!
+        ? FirebaseFirestore.instance
+            .collection(path)
+            .where('userID', isEqualTo: uid)
+        : FirebaseFirestore.instance.collection(path);
+    final snapshot = ref.snapshots();
+
+    return snapshot.map((snapshot) => snapshot.docs
+        .map((snapshot) => builder(snapshot.data(), snapshot.id))
+        .toList());
+  }
+
   Stream<List<T>> classroomCollectionStream<T>({
     required String path,
     required String uid,

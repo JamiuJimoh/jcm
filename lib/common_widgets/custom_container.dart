@@ -5,7 +5,9 @@ class CustomContainer extends StatelessWidget {
   final Color? borderColor;
   final double? height;
   final double? maxHeight;
+  final double? minHeight;
   final double? width;
+  final double? minWidth;
   final Color? containerColor;
   final double? borderRadius;
   final Gradient? gradient;
@@ -20,7 +22,9 @@ class CustomContainer extends StatelessWidget {
     this.padding,
     this.height: 100.0,
     this.maxHeight: 100.0,
+    this.minHeight: 100.0,
     this.width: 100.0,
+    this.minWidth: 100.0,
     this.borderRadius: 20.0,
     this.gradient,
     this.boxShadow,
@@ -33,9 +37,9 @@ class CustomContainer extends StatelessWidget {
       onTap: onPressed,
       child: ConstrainedBox(
         constraints: BoxConstraints(
-          minHeight: height!,
+          minHeight: minHeight!,
           maxHeight: maxHeight!,
-          minWidth: width!,
+          minWidth: minWidth!,
         ),
         child: Container(
           padding: padding,

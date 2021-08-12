@@ -10,6 +10,8 @@ import 'package:provider/provider.dart';
 import 'course_page/course_page.dart';
 import 'models/created_course.dart';
 import 'models/joined_course.dart';
+import 'models/user_profile.dart';
+import 'settings_page/settings_page.dart';
 
 class MenuDrawer extends StatelessWidget {
   const MenuDrawer({required this.database});
@@ -101,22 +103,40 @@ class MenuDrawer extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 30.0),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Row(
-                  children: [
-                    Icon(Icons.settings_outlined),
-                    const SizedBox(width: 30.0),
-                    Text(
-                      'Settings',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyText1
-                          ?.copyWith(fontSize: 15.0),
-                    ),
-                  ],
-                ),
-              ),
+              StreamBuilder<List<UserProfile>>(
+                  stream: database.userProfilesStream(isCurrentUser: true),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return LinearProgressIndicator();
+                    }
+                    final userProfiles = snapshot.data!;
+                    if (snapshot.hasData) {
+                      return userProfiles.isEmpty
+                          ? Container()
+                          : InkWell(
+                              onTap: () => SettingsPage.show(context,
+                                  userProfile: userProfiles.first),
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.settings_outlined),
+                                    const SizedBox(width: 30.0),
+                                    Text(
+                                      'Settings',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyText1
+                                          ?.copyWith(fontSize: 15.0),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                    }
+                    return LinearProgressIndicator();
+                  }),
               const SizedBox(height: 30.0),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -149,31 +169,36 @@ class MenuDrawer extends StatelessWidget {
   Widget _buildProfileHead(BuildContext context) {
     final auth = Provider.of<AuthBase>(context, listen: false);
     final user = auth.currentUser!;
-    return Align(
-      alignment: Alignment.center,
-      child: Column(
-        children: [
-          UserCircleAvatar(radius: 50.0),
-          const SizedBox(height: 15.0),
-          Text(
-            user.displayName != null
-                ? (user.displayName!.isEmpty
-                    ? 'USER'
-                    : user.displayName!.toUpperCase())
-                : 'USER',
-            style: Theme.of(context).textTheme.bodyText1,
-          ),
-          const SizedBox(height: 7.0),
-          Text(
-            user.email ?? 'randomuser@gmailcom',
-            style: Theme.of(context)
-                .textTheme
-                .subtitle2
-                ?.copyWith(fontWeight: FontWeight.w300),
-          ),
-        ],
-      ),
-    );
+    return StreamBuilder<List<UserProfile>>(
+        stream: database.userProfilesStream(isCurrentUser: true),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return LinearProgressIndicator();
+          }
+          final userProfiles = snapshot.data!;
+          return Align(
+            alignment: Alignment.center,
+            child: Column(
+              children: [
+                UserCircleAvatar(
+                    radius: 50.0, imageUrl: userProfiles.first.imageUrl),
+                const SizedBox(height: 15.0),
+                Text(
+                  '${userProfiles.first.name} ${userProfiles.first.surname}',
+                  style: Theme.of(context).textTheme.bodyText1,
+                ),
+                const SizedBox(height: 7.0),
+                Text(
+                  user.email ?? 'randomuser@gmailcom',
+                  style: Theme.of(context)
+                      .textTheme
+                      .subtitle2
+                      ?.copyWith(fontWeight: FontWeight.w300),
+                ),
+              ],
+            ),
+          );
+        });
   }
 
   List<Widget> _buildDivider() {
@@ -286,7 +311,10 @@ class _CourseListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap,
+      onTap: () {
+        Navigator.of(context).pop();
+        onTap();
+      },
       child: Column(
         children: [
           ListTile(
