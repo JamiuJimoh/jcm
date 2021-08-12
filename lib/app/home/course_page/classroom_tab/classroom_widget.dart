@@ -83,7 +83,8 @@ class ClassroomWidget extends StatelessWidget {
                         message: userClassroom.classroom.message,
                         borderColor: Theme.of(context).primaryColor,
                         time: userClassroom.classroom.createdAt,
-                        leadingAvatar: UserCircleAvatar(),
+                        leadingAvatar: UserCircleAvatar(
+                            imageUrl: userClassroom.userProfile?.imageUrl),
                       ),
                       const SizedBox(height: 20.0),
                     ],
