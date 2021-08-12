@@ -1,4 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:jamiu_class_manager/app/home/models/user_profile.dart';
+import 'package:jamiu_class_manager/services/database.dart';
 
 import 'validators.dart';
 import '../../services/auth.dart';
@@ -15,6 +18,7 @@ class EmailSignInChangeModel with EmailAndPasswordValidators, ChangeNotifier {
   bool isLoading;
   bool submitted;
   final AuthBase auth;
+  final Database database;
 
   EmailSignInChangeModel({
     this.email: '',
@@ -24,6 +28,7 @@ class EmailSignInChangeModel with EmailAndPasswordValidators, ChangeNotifier {
     this.isLoading: false,
     this.submitted: false,
     required this.auth,
+    required this.database,
   });
 
   Future<void> submit() async {
@@ -33,7 +38,8 @@ class EmailSignInChangeModel with EmailAndPasswordValidators, ChangeNotifier {
       if (formType == EmailSignInFormType.signIn) {
         await auth.signInWithEmailAndPassword(email, password);
       } else {
-        await auth.createUserWithEmailAndPassword(email, password);
+        final user = await auth.createUserWithEmailAndPassword(email, password);
+        await createUserProfile(user);
       }
     } catch (e) {
       updateWith(isLoading: false);
@@ -45,12 +51,24 @@ class EmailSignInChangeModel with EmailAndPasswordValidators, ChangeNotifier {
     updateWith(submitted: true, isLoading: true);
 
     try {
-      await auth.signInWithGoogle();
+      final user = await auth.signInWithGoogle();
+      await createUserProfile(user);
     } catch (e) {
       updateWith(isLoading: false);
 
       rethrow;
     }
+  }
+
+  Future<void> createUserProfile(User? firebaseUser) async {
+    final user = UserProfile(
+      userID: firebaseUser?.uid ?? '',
+      name: firebaseUser?.displayName ?? '',
+      surname: '',
+      email: firebaseUser?.email ?? '',
+      imageUrl: firebaseUser?.photoURL ?? '',
+    );
+    await database.setUserProfile(user, firebaseUser!.uid);
   }
 
   String get primaryButtonText {
@@ -99,7 +117,6 @@ class EmailSignInChangeModel with EmailAndPasswordValidators, ChangeNotifier {
         );
     return showErrorText ? invalidConfirmPasswordErrorText : null;
   }
-
 
   void toggleFormType() {
     final formType = this.formType == EmailSignInFormType.signIn

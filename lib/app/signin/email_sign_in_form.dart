@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:jamiu_class_manager/common_widgets/show_exception_alert_dialog.dart';
 import 'package:jamiu_class_manager/services/auth.dart';
+import 'package:jamiu_class_manager/services/database.dart';
 import 'package:provider/provider.dart';
 
 import 'email_sign_change_model.dart';
@@ -10,21 +11,24 @@ import 'sign_in_text_field.dart';
 import 'social_sign_in_button.dart';
 
 class EmailSignInForm extends StatefulWidget {
-  EmailSignInForm({
-    required this.model,
-    // required this.database,
-  });
+  EmailSignInForm({required this.model, required this.database});
   final EmailSignInChangeModel model;
-  // final Database database;
+  final Database database;
 
   static Widget create(BuildContext context) {
     final auth = Provider.of<AuthBase>(context, listen: false);
-    return ChangeNotifierProvider<EmailSignInChangeModel>(
-      create: (_) => EmailSignInChangeModel(auth: auth),
-      child: Consumer<EmailSignInChangeModel>(
-        builder: (_, model, __) => EmailSignInForm(
-          model: model,
-          // database: database,
+    return Provider<Database>(
+      create: (_) => FireStoreDatabase(uid: auth.currentUser?.uid),
+      child: Consumer<Database>(
+        builder: (_, database, __) =>
+            ChangeNotifierProvider<EmailSignInChangeModel>(
+          create: (_) => EmailSignInChangeModel(auth: auth,database: database),
+          child: Consumer<EmailSignInChangeModel>(
+            builder: (_, model, __) => EmailSignInForm(
+              model: model,
+              database: database,
+            ),
+          ),
         ),
       ),
     );
@@ -47,7 +51,7 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
   Future<void> _submit() async {
     try {
       await model.submit();
-    } on FirebaseAuthException catch (error) {
+    } on Exception catch (error) {
       showExceptionAlertDialog(
         context,
         title: 'Sign in failed',
@@ -59,7 +63,7 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
   Future<void> _signInWithGoogle(BuildContext context) async {
     try {
       await model.signInWithGoogle();
-    } on Exception catch (e) {
+    } on FirebaseAuthException catch (e) {
       _showSignInError(context, e);
     }
   }

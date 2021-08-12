@@ -1,11 +1,9 @@
 class APIPath {
-  static String course( String courseId) =>
-      '/courses/$courseId';
+  static String course(String courseId) => '/courses/$courseId';
 
   static String courses() => '/courses';
 
-  static String courseConvo( String classroomId) =>
-      '/classroom/$classroomId';
+  static String courseConvo(String classroomId) => '/classroom/$classroomId';
 
   static String courseConvos() => '/classroom';
 
@@ -14,8 +12,7 @@ class APIPath {
 
   static String joinedCourses(String uid) => '/users/$uid/joinedCourses';
 
-  static String userType({required String uid, required String userTypeId}) =>
-      'users/$uid/userTypes/$userTypeId';
+  static String user(String uid) => 'users/$uid/';
 
-  static String userTypes({required String uid}) => 'users/$uid/userTypes';
+  static String users() => 'users/';
 }

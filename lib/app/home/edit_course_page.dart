@@ -8,6 +8,7 @@ import 'package:jamiu_class_manager/services/auth.dart';
 import 'package:jamiu_class_manager/services/database.dart';
 import 'package:provider/provider.dart';
 
+import 'courses_bloc.dart';
 import 'models/created_course.dart';
 import 'validators.dart';
 
@@ -17,10 +18,12 @@ class EditCoursePage extends StatefulWidget with CourseValidators {
   final Database database;
   final AuthBase auth;
   final CreatedCourse? course;
+  final CoursesBloc bloc;
 
   EditCoursePage({
     required this.database,
     required this.auth,
+    required this.bloc,
     this.course,
   });
 
@@ -31,8 +34,17 @@ class EditCoursePage extends StatefulWidget with CourseValidators {
 
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) =>
-            EditCoursePage(database: database, auth: auth, course: course),
+        builder: (context) => Provider<CoursesBloc>(
+          create: (_) => CoursesBloc(database: database, auth: auth),
+          child: Consumer<CoursesBloc>(
+            builder: (_, bloc, __) => EditCoursePage(
+              database: database,
+              auth: auth,
+              course: course,
+              bloc: bloc,
+            ),
+          ),
+        ),
         fullscreenDialog: true,
       ),
     );
@@ -89,7 +101,6 @@ class _EditCoursePageState extends State<EditCoursePage> {
           _isLoading = true;
         });
         final courseId = widget.course?.courseId ?? documentIdFromCurrentDate();
-        final teacherName = widget.auth.currentUser?.displayName ?? 'Jam';
         final teacherId = widget.auth.currentUser!.uid;
         final courseIV =
             _generateCourseIV(courseCode: _initialValue['courseCode']);
@@ -99,7 +110,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
           courseIV: courseIV,
           courseTitle: _initialValue['courseTitle'],
           courseCode: _initialValue['courseCode'],
-          teacherName: teacherName,
+          teacherName: '',
         );
         await widget.database.setCourse(course);
         setState(() {
@@ -122,6 +133,9 @@ class _EditCoursePageState extends State<EditCoursePage> {
 
   @override
   Widget build(BuildContext context) {
+    // final userProfile = widget.bloc.userStream.first;
+    // print(userProfile);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(

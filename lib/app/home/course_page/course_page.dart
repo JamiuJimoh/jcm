@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/created_course.dart';
 import '../models/joined_course.dart';
-import 'classroom_tab/classroom.dart';
+import 'classroom_tab/classroom_widget.dart';
 import 'classwork_tab/classwork.dart';
 import 'people.dart';
 

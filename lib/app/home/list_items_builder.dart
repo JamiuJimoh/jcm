@@ -8,12 +8,14 @@ class ListItemsBuilder<T> extends StatelessWidget {
   final AsyncSnapshot<List<T>> snapshot;
   final ItemWidgetBuilder<T> itemBuilder;
   final String? emptyStateMessage;
+  final String? emptyStateTitle;
 
   const ListItemsBuilder({
     Key? key,
     required this.snapshot,
     required this.itemBuilder,
     this.emptyStateMessage: 'Create or join a class',
+    this.emptyStateTitle: 'No courses yet',
   }) : super(key: key);
 
   @override
@@ -24,7 +26,7 @@ class ListItemsBuilder<T> extends StatelessWidget {
         return _buildList(items.reversed.toList());
       } else {
         return EmptyStateContent(
-          title: 'No courses yet',
+          title: emptyStateTitle!,
           message: emptyStateMessage!,
         );
       }

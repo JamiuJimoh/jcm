@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../services/auth.dart';
 import 'home/home_page.dart';
+import 'home/models/user_profile.dart';
 import 'signin/sign_in_page.dart';
 
 class LandingPage extends StatelessWidget {
@@ -21,7 +22,8 @@ class LandingPage extends StatelessWidget {
           if (user == null) {
             return SignInPage();
           }
-          return HomePage.create(uid: user.uid);
+
+          return HomePage.create(context, uid: user.uid);
         }
         return Scaffold(
           body: Center(child: CircularProgressIndicator()),

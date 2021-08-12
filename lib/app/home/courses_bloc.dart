@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:jamiu_class_manager/app/home/models/user_profile.dart';
 import 'package:jamiu_class_manager/services/auth.dart';
 import 'package:jamiu_class_manager/services/database.dart';
 import 'package:collection/collection.dart';
@@ -9,24 +10,19 @@ import 'package:rxdart/rxdart.dart';
 import 'models/created_course.dart';
 import 'models/joined_course.dart';
 
-class CoursesBloc extends Cubit<bool> {
-  CoursesBloc({required this.database, required this.auth}) : super(false);
+class CoursesBloc {
+  CoursesBloc({required this.database, required this.auth});
   // CoursesBloc({required this.database});
   final Database database;
   final AuthBase auth;
 
-  // final AuthBase auth;
+  final _boolBehaviorSubject = BehaviorSubject<List<bool>>();
 
-  // BehaviorSubject<bool> _isErrorController = BehaviorSubject<bool>();
-
-  // StreamSink<bool> get isErrorSink => _isErrorController.sink;
-  // Stream<bool> get isErrorStream => _isErrorController.stream;
-
-  // void dispose() {
-  //   _isErrorController.close();
-  // }
-
-  void didEmitError() => emit(state);
+  Stream<List<bool>> get boolStream => _boolBehaviorSubject.stream;
+  // void addBoolVal() => _boolBehaviorSubject.add(true);
+  void dispose() {
+    _boolBehaviorSubject.close();
+  }
 
   Future<void> joinCourse(String courseIV) async {
     database.coursesStream(false).listen((event) {
@@ -36,19 +32,57 @@ class CoursesBloc extends Cubit<bool> {
             course.teacherId != auth.currentUser?.uid,
       );
       if (foundCourse == null) {
-        emit(true);
+        _boolBehaviorSubject.add([true]);
       } else {
         database.joinCourse(foundCourse);
-        emit(false);
+        _boolBehaviorSubject.add([false]);
       }
     });
   }
 
-  // Stream<List<CreatedCourse>> get createdCourse async{
-  //  await database.coursesStream().listen((createdCourses) {
-  //     createdCourses.where((course) {
-  //       return course.teacherId == auth.currentUser!.uid;
-  //     }).toList();
-  //   });
-  // }
+  Stream<List<JoinedCourse>> get joinedCourseStreamCombiner =>
+      Rx.combineLatest2(
+        database.joinedCoursesStream(),
+        database.userProfilesStream(),
+        _joinedCourseStreamCombiner,
+      );
+
+  static List<JoinedCourse> _joinedCourseStreamCombiner(
+      List<JoinedCourse> joinedCourses, List<UserProfile> userProfiles) {
+    return joinedCourses.map((course) {
+      final foundTeacher = userProfiles
+          .firstWhereOrNull((user) => course.teacherId == user.userID);
+      return JoinedCourse(
+        courseId: course.courseId,
+        courseIV: course.courseIV,
+        teacherId: course.teacherId,
+        courseTitle: course.courseTitle,
+        courseCode: course.courseCode,
+        teacherName: '${foundTeacher?.name} ${foundTeacher?.surname}',
+      );
+    }).toList();
+  }
+
+  Stream<List<CreatedCourse>> get createdCourseStreamCombiner =>
+      Rx.combineLatest2(
+        database.coursesStream(true),
+        database.userProfilesStream(),
+        _createdCourseStreamCombiner,
+      );
+
+  static List<CreatedCourse> _createdCourseStreamCombiner(
+      List<CreatedCourse> createdCourses, List<UserProfile> userProfiles) {
+    return createdCourses.map((course) {
+      final foundTeacher = userProfiles
+          .firstWhereOrNull((user) => course.teacherId == user.userID);
+      return CreatedCourse(
+        courseId: course.courseId,
+        courseIV: course.courseIV,
+        teacherId: course.teacherId,
+        courseTitle: course.courseTitle,
+        courseCode: course.courseCode,
+        teacherName: '${foundTeacher?.name} ${foundTeacher?.surname}',
+      );
+    }).toList();
+  }
 }
