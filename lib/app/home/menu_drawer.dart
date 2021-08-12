@@ -7,6 +7,7 @@ import 'package:jamiu_class_manager/services/auth.dart';
 import 'package:jamiu_class_manager/services/database.dart';
 import 'package:provider/provider.dart';
 
+import 'course_page/course_page.dart';
 import 'models/created_course.dart';
 import 'models/joined_course.dart';
 
@@ -75,9 +76,7 @@ class MenuDrawer extends StatelessWidget {
                   if (snapshot.hasData) {
                     return snapshot.data!.isEmpty
                         ? Container()
-                        : _ExpandableTile(
-                            createdCourse: snapshot.data!,
-                          );
+                        : _ExpandableTile(createdCourse: snapshot.data!);
                   } else if (snapshot.hasError) {
                     return Text(snapshot.error.toString());
                   }
@@ -236,8 +235,11 @@ class __ExpandableTileState extends State<_ExpandableTile> {
               ...widget.createdCourse!
                   .map(
                     (course) => _CourseListTile(
-                        courseTitle: course.courseTitle,
-                        courseCode: course.courseCode),
+                      courseTitle: course.courseTitle,
+                      courseCode: course.courseCode,
+                      onTap: () =>
+                          CoursePage.show(context, createdCourse: course),
+                    ),
                   )
                   .toList(),
           if (_enrolledExpanded)
@@ -245,8 +247,11 @@ class __ExpandableTileState extends State<_ExpandableTile> {
               ...widget.joinedCourse!
                   .map(
                     (course) => _CourseListTile(
-                        courseTitle: course.courseTitle,
-                        courseCode: course.courseCode),
+                      courseTitle: course.courseTitle,
+                      courseCode: course.courseCode,
+                      onTap: () =>
+                          CoursePage.show(context, joinedCourse: course),
+                    ),
                   )
                   .toList(),
           ..._buildDivider(),
@@ -271,19 +276,27 @@ class __ExpandableTileState extends State<_ExpandableTile> {
 class _CourseListTile extends StatelessWidget {
   final String courseTitle;
   final String courseCode;
+  final VoidCallback onTap;
 
-  const _CourseListTile({required this.courseTitle, required this.courseCode});
+  const _CourseListTile({
+    required this.courseTitle,
+    required this.courseCode,
+    required this.onTap,
+  });
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        ListTile(
-          leading: CircleAvatar(),
-          title: Text(courseCode, overflow: TextOverflow.ellipsis),
-          subtitle: Text(courseTitle, overflow: TextOverflow.ellipsis),
-        ),
-        const SizedBox(height: 5.0),
-      ],
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        children: [
+          ListTile(
+            leading: CircleAvatar(),
+            title: Text(courseCode, overflow: TextOverflow.ellipsis),
+            subtitle: Text(courseTitle, overflow: TextOverflow.ellipsis),
+          ),
+          const SizedBox(height: 5.0),
+        ],
+      ),
     );
   }
 }

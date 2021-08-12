@@ -34,7 +34,8 @@ class MessageContainer extends CustomContainer {
                   subtitle: Row(
                     children: [
                       Text(
-                          '${Months.getMonth(time.toDate().month)} ${time.toDate().day}'),
+                        '${time.toDate().day} ${Months.getMonth(time.toDate().month)} ${time.toDate().year} ',
+                      ),
                     ],
                   ),
                   leading: leadingAvatar,
