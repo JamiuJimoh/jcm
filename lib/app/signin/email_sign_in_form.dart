@@ -9,6 +9,7 @@ import '../landing_page.dart';
 import 'email_sign_change_model.dart';
 import 'form_submit_button.dart';
 import 'sign_in_text_field.dart';
+import 'social_sign_in_button.dart';
 
 class EmailSignInForm extends StatefulWidget {
   EmailSignInForm({required this.model, required this.database});
@@ -45,6 +46,7 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
 
   var _obscureText = true;
   var _isLoading = false;
+  var _isGoogleLoading = false;
 
   EmailSignInChangeModel get model => widget.model;
 
@@ -54,22 +56,54 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
         _isLoading = true;
       });
       await model.submit();
+      if (!mounted) return;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => LandingPage()),
       );
       setState(() {
         _isLoading = false;
       });
-    } on Exception catch (error) {
+    } on FirebaseAuthException catch (error) {
+      setState(() {
+        _isLoading = false;
+      });
       showExceptionAlertDialog(
         context,
         title: 'Sign in failed',
         exception: error,
       );
-      setState(() {
-        _isLoading = false;
-      });
     }
+  }
+
+  Future<void> _signInWithGoogle(BuildContext context) async {
+    try {
+      setState(() {
+        _isGoogleLoading = true;
+      });
+      await model.signInWithGoogle();
+      if (!mounted) return;
+
+      setState(() {
+        _isGoogleLoading = false;
+      });
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _isGoogleLoading = false;
+      });
+      _showSignInError(context, e);
+    }
+  }
+
+  void _showSignInError(BuildContext context, Exception exception) {
+    if (exception is FirebaseException &&
+        exception.code == 'ERROR_ABORTED_BY_USER') {
+      return;
+    }
+    showExceptionAlertDialog(
+      context,
+      title: 'Sign in failed',
+      exception: exception,
+    );
   }
 
   void _toggleFormType() {
@@ -197,6 +231,19 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
           ],
         ),
       ),
+      const SizedBox(height: 15.0),
+      _isGoogleLoading
+          ? LinearProgressIndicator()
+          : SocialSignInButton(
+              assetName: 'assets/images/google-logo.png',
+              text: Text(
+                'Sign In With Google',
+                style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                      fontSize: 16.0,
+                    ),
+              ),
+              onPressed: () => _signInWithGoogle(context),
+            ),
     ];
   }
 

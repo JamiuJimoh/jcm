@@ -21,10 +21,11 @@ class LandingPage extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.active) {
           final user = snapshot.data;
           if (user == null) {
-            return SignInPage.create(context);
+            return SignInPage();
           }
+
           return Provider<Database>(
-            create: (context) => FireStoreDatabase(uid: user.uid),
+            create: (_) => FireStoreDatabase(uid: user.uid),
             child: HomePage.create(context),
           );
         }

@@ -44,7 +44,7 @@ class EditCoursePage extends StatefulWidget with CourseValidators {
               bloc: bloc,
             ),
           ),
-          dispose:(_, bloc)=> bloc.dispose(),
+          dispose: (_, bloc) => bloc.dispose(),
         ),
         fullscreenDialog: true,
       ),

@@ -43,7 +43,6 @@ class MenuDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final database = Provider.of<Database>(context, listen: false);
-
     return Drawer(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 48.0),

@@ -34,7 +34,6 @@ class ClassroomWidget extends StatelessWidget {
             builder: (_, bloc, __) =>
                 ClassroomWidget(courseID: courseID, auth: auth, bloc: bloc),
           ),
-          // dispose:(_, bloc)=> bloc.dispose(),
         ),
       ),
     );

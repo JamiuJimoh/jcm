@@ -39,6 +39,7 @@ class EmailSignInChangeModel with EmailAndPasswordValidators, ChangeNotifier {
         await auth.signInWithEmailAndPassword(email, password);
       } else {
         final user = await auth.createUserWithEmailAndPassword(email, password);
+
         await _createUserProfile(user);
       }
     } catch (e) {
@@ -51,17 +52,16 @@ class EmailSignInChangeModel with EmailAndPasswordValidators, ChangeNotifier {
     updateWith(submitted: true, isLoading: true);
 
     try {
-      final user = await auth.signInWithGoogle();
-      await _createUserProfile(user);
+      final credential = await auth.signInWithGoogle();
+      if (credential.additionalUserInfo!.isNewUser) {
+        await _createUserProfile(credential.user);
+      }
     } catch (e) {
       updateWith(isLoading: false);
+
       rethrow;
     }
   }
-
-  // Future<bool> _checkUserAlreadyExist(User? firebaseUser) async{
-  //   await database.userProfilesStream(isCurrentUser:true).first;
-  // }
 
   Future<void> _createUserProfile(User? firebaseUser) async {
     final user = UserProfile(
@@ -71,7 +71,6 @@ class EmailSignInChangeModel with EmailAndPasswordValidators, ChangeNotifier {
       email: firebaseUser?.email ?? '',
       imageUrl: firebaseUser?.photoURL ?? '',
     );
-
     await database.setUserProfile(user, firebaseUser!.uid);
   }
 
