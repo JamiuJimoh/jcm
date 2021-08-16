@@ -14,9 +14,6 @@ import 'models/user_profile.dart';
 import 'settings_page/settings_page.dart';
 
 class MenuDrawer extends StatelessWidget {
-  const MenuDrawer({required this.database});
-  final Database database;
-
   Future<void> _signOut(BuildContext context) async {
     try {
       final auth = Provider.of<AuthBase>(context, listen: false);
@@ -45,6 +42,8 @@ class MenuDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final database = Provider.of<Database>(context, listen: false);
+
     return Drawer(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 48.0),
@@ -66,7 +65,7 @@ class MenuDrawer extends StatelessWidget {
                 ),
               ),
               ..._buildDivider(),
-              _buildProfileHead(context),
+              _buildProfileHead(context, database),
               const SizedBox(height: 10.0),
               ..._buildDivider(),
               StreamBuilder<List<CreatedCourse>>(
@@ -166,7 +165,7 @@ class MenuDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileHead(BuildContext context) {
+  Widget _buildProfileHead(BuildContext context, Database database) {
     final auth = Provider.of<AuthBase>(context, listen: false);
     final user = auth.currentUser!;
     return StreamBuilder<List<UserProfile>>(

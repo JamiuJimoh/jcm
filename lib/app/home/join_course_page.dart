@@ -45,6 +45,7 @@ class JoinCoursePage extends StatefulWidget with CourseValidators {
               // change: change,
             ),
           ),
+          dispose:(_, bloc)=> bloc.dispose(),
         ),
         fullscreenDialog: true,
       ),
@@ -131,12 +132,6 @@ class _JoinCoursePageState extends State<JoinCoursePage> {
       //   }
       // });
     }
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    widget.bloc.dispose();
   }
 
   @override
