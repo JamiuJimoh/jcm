@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:jamiu_class_manager/common_widgets/custom_elevated_button.dart';
 import 'package:jamiu_class_manager/common_widgets/custom_text_form_field.dart';
 import 'package:jamiu_class_manager/common_widgets/show_exception_alert_dialog.dart';
 import 'package:jamiu_class_manager/services/auth.dart';
@@ -59,6 +60,8 @@ class _EditCoursePageState extends State<EditCoursePage> {
   final _formKey = GlobalKey<FormState>();
 
   var _isLoading = false;
+  var _courseTitleEmpty = false;
+  var _courseCodeEmpty = false;
 
   var _initialValue = <String, dynamic>{
     'courseTitle': '',
@@ -132,24 +135,18 @@ class _EditCoursePageState extends State<EditCoursePage> {
     }
   }
 
+  bool canSubmit() {
+    return _courseCodeEmpty && _courseTitleEmpty;
+  }
+
   @override
   Widget build(BuildContext context) {
-    // final userProfile = widget.bloc.userStream.first;
-    // print(userProfile);
-
     return Scaffold(
       appBar: AppBar(
         title: Text(
           widget.course != null ? 'Edit Course' : 'Create Course',
         ),
-        actions: [
-          _isLoading
-              ? CircularProgressIndicator()
-              : IconButton(
-                  onPressed: _isLoading ? null : _submit,
-                  icon: Icon(Icons.save),
-                ),
-        ],
+        
       ),
       body: Form(
         key: _formKey,
@@ -166,6 +163,14 @@ class _EditCoursePageState extends State<EditCoursePage> {
                     labelText: 'Course title',
                     hintText: 'e.g Automata & Data Structure',
                     onSaved: (value) => _initialValue['courseTitle'] = value,
+                    onChanged: (value) {
+                      setState(() {
+                        _courseTitleEmpty = true;
+                      });
+                      if (value.isEmpty) {
+                        _courseTitleEmpty = false;
+                      }
+                    },
                     validator: (value) =>
                         widget.courseTitleValidator.isValid(value!)
                             ? null
@@ -177,10 +182,33 @@ class _EditCoursePageState extends State<EditCoursePage> {
                     labelText: 'Course code',
                     hintText: 'e.g CSC 401',
                     onSaved: (value) => _initialValue['courseCode'] = value,
+                    onChanged: (value) {
+                      setState(() {
+                        _courseCodeEmpty = true;
+                      });
+                      if (value.isEmpty) {
+                        _courseCodeEmpty = false;
+                      }
+                    },
                     validator: (value) =>
                         widget.courseCodeValidator.isValid(value!)
                             ? null
                             : widget.invalidCourseCodeErrorText,
+                  ),
+                  const SizedBox(height: 20.0),
+                  CustomElevatedButton(
+                    width: double.infinity,
+                    height: 47.00,
+                    child: _isLoading
+                        ? CircularProgressIndicator()
+                        : Text(
+                            'Create Course',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyText1
+                                ?.copyWith(color: Colors.white, fontSize: 16.0),
+                          ),
+                    onPressed: !canSubmit() ? null : _submit,
                   ),
                 ],
               ),

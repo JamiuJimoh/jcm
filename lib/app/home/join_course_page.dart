@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
+import 'package:jamiu_class_manager/app/home/models/user_profile.dart';
 
 import 'package:jamiu_class_manager/common_widgets/custom_elevated_button.dart';
 import 'package:jamiu_class_manager/common_widgets/custom_text_form_field.dart';
@@ -17,10 +18,7 @@ class JoinCoursePage extends StatefulWidget with CourseValidators {
   final Database database;
   final AuthBase auth;
 
-  JoinCoursePage({
-    required this.database,
-    required this.auth,
-  });
+  JoinCoursePage({required this.database, required this.auth});
 
   static Future<void> create(BuildContext context) async {
     final database = Provider.of<Database>(context, listen: false);
@@ -40,6 +38,8 @@ class JoinCoursePage extends StatefulWidget with CourseValidators {
 
 class _JoinCoursePageState extends State<JoinCoursePage> {
   final _textController = TextEditingController();
+  var _canSubmit = false;
+  var _isLoading = false;
 
   User get user => widget.auth.currentUser!;
 
@@ -51,6 +51,9 @@ class _JoinCoursePageState extends State<JoinCoursePage> {
 
   Future<void> _submit(List<CreatedCourse> createdCourses) async {
     try {
+      setState(() {
+        _isLoading = true;
+      });
       final courseIV = _textController.text;
       final foundCourse = createdCourses.firstWhereOrNull((course) {
         return course.courseIV == courseIV &&
@@ -58,6 +61,9 @@ class _JoinCoursePageState extends State<JoinCoursePage> {
       });
 
       if (foundCourse == null) {
+        setState(() {
+          _isLoading = false;
+        });
         showExceptionAlertDialog(
           context,
           title: 'Course not found',
@@ -65,10 +71,16 @@ class _JoinCoursePageState extends State<JoinCoursePage> {
           defaultActionText: 'Dismiss',
         );
       } else {
+        setState(() {
+          _isLoading = false;
+        });
         widget.database.joinCourse(foundCourse);
         Navigator.of(context).pop();
       }
     } on FireStoreDatabase catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
       showExceptionAlertDialog(
         context,
         title: 'Course not found',
@@ -76,7 +88,6 @@ class _JoinCoursePageState extends State<JoinCoursePage> {
         defaultActionText: 'Dismiss',
       );
     }
-    ;
   }
 
   @override
@@ -90,67 +101,113 @@ class _JoinCoursePageState extends State<JoinCoursePage> {
   }
 
   Widget _buildBody(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Currently Signed in as',
+                style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                      fontSize: 15.0,
+                      // fontWeight: FontWeight.w600,
+                    ),
+              ),
+              const SizedBox(height: 17.0),
+              _buildUserListTile(),
+              const SizedBox(height: 15.0),
+              const Divider(
+                thickness: 0.8,
+              ),
+              const SizedBox(height: 19.0),
+              Text(
+                'Ask your teacher for the Course IV, then enter it here.',
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyText1
+                    ?.copyWith(fontSize: 15.0, fontWeight: FontWeight.w400),
+              ),
+              const SizedBox(height: 15.0),
+              _buildFormStream(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUserListTile() {
+    return StreamBuilder<List<UserProfile>>(
+      stream: widget.database.userProfilesStream(isCurrentUser: true),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          final foundUserProfile = snapshot.data!;
+          if (foundUserProfile.isNotEmpty) {
+            return ListTile(
+              leading:
+                  UserCircleAvatar(imageUrl: foundUserProfile.first.imageUrl),
+              title: Text(
+                  '${foundUserProfile.first.name} ${foundUserProfile.first.surname}'),
+              subtitle: Text(foundUserProfile.first.email),
+            );
+          }
+        } else if (snapshot.hasError) {
+          print(snapshot.error);
+          showExceptionAlertDialog(
+            context,
+            title: 'User Error',
+            exception: Exception(snapshot.error),
+            defaultActionText: 'Dismiss',
+          );
+        }
+        return LinearProgressIndicator();
+      },
+    );
+  }
+
+  Widget _buildFormStream() {
     return StreamBuilder<List<CreatedCourse>>(
       stream: widget.database.coursesStream(false),
       builder: (_, snapshot) {
         if (snapshot.hasData) {
           final createdCourses = snapshot.data!;
           if (createdCourses.isNotEmpty) {
-            return Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Currently Signed in as',
-                        style: Theme.of(context).textTheme.bodyText1?.copyWith(
-                              fontSize: 15.0,
-                              // fontWeight: FontWeight.w600,
-                            ),
-                      ),
-                      const SizedBox(height: 17.0),
-                      ListTile(
-                        leading: UserCircleAvatar(),
-                        title: Text(user.displayName ?? 'User'),
-                        subtitle: Text(user.email!),
-                      ),
-                      const SizedBox(height: 15.0),
-                      const Divider(
-                        thickness: 0.8,
-                      ),
-                      const SizedBox(height: 19.0),
-                      Text(
-                        'Ask your teacher for the Course IV, then enter it here.',
-                        style: Theme.of(context).textTheme.bodyText1?.copyWith(
-                            fontSize: 15.0, fontWeight: FontWeight.w400),
-                      ),
-                      const SizedBox(height: 15.0),
-                      CustomTextFormField(
-                        // initialValue: _initialValue['courseCode'],
-                        controller: _textController,
-                        labelText: 'Course IV',
-                        hintText: 'e.g NJ6kEDU312',
-                        // errorText: 'Insert courseIV',
-                        // enabled: false,
-                        validator: (value) =>
-                            widget.courseIVValidator.isValid(value!)
-                                ? null
-                                : widget.invalidCourseIVErrorText,
-                      ),
-                      const SizedBox(height: 15.0),
-                      CustomElevatedButton(
-                        child: Text('JOIN COURSE'),
-                        height: 50.0,
-                        onPressed: () => _submit(createdCourses),
-                      ),
-                    ],
-                  ),
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                CustomTextFormField(
+                  controller: _textController,
+                  labelText: 'Course IV',
+                  hintText: 'e.g NJ6kEDU312',
+                  onChanged: (value) {
+                    print(value.isEmpty);
+                    setState(() {
+                      _canSubmit = true;
+                    });
+                    if (value.isEmpty) {
+                      _canSubmit = false;
+                    }
+                  },
                 ),
-              ),
+                const SizedBox(height: 15.0),
+                CustomElevatedButton(
+                  child: _isLoading
+                      ? CircularProgressIndicator()
+                      : Text(
+                          'JOIN COURSE',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyText1
+                              ?.copyWith(color: Colors.white, fontSize: 16.0),
+                        ),
+                  height: 50.0,
+                  onPressed: !_canSubmit ? null : () => _submit(createdCourses),
+                ),
+              ],
             );
           }
         } else if (snapshot.hasError) {
@@ -162,7 +219,7 @@ class _JoinCoursePageState extends State<JoinCoursePage> {
             defaultActionText: 'Dismiss',
           );
         }
-        return CircularProgressIndicator();
+        return LinearProgressIndicator();
       },
     );
   }
