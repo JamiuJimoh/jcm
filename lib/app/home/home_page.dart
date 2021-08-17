@@ -16,22 +16,19 @@ import 'models/joined_course.dart';
 enum CourseType { joinedCourses, createdCourses }
 
 class HomePage extends StatefulWidget {
-  const HomePage({required this.database, required this.bloc});
-  final Database database;
+  const HomePage({required this.bloc});
   final CoursesBloc bloc;
 
-  static Widget create(BuildContext context, {required String uid}) {
+  static Widget create(BuildContext context) {
     final auth = Provider.of<AuthBase>(context, listen: false);
 
-    return Provider<Database>(
-      create: (_) => FireStoreDatabase(uid: uid),
-      child: Consumer<Database>(
-        builder: (_, database, __) => Provider<CoursesBloc>(
-          create: (_) => CoursesBloc(database: database, auth: auth),
-          child: Consumer<CoursesBloc>(
-            builder: (_, bloc, __) => HomePage(database: database, bloc: bloc),
-          ),
+    return Consumer<Database>(
+      builder: (_, database, __) => Provider<CoursesBloc>(
+        create: (_) => CoursesBloc(database: database, auth: auth),
+        child: Consumer<CoursesBloc>(
+          builder: (_, bloc, __) => HomePage(bloc: bloc),
         ),
+        dispose: (_, bloc) => bloc.dispose(),
       ),
     );
   }
@@ -55,7 +52,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: MenuDrawer(database: widget.database),
+      drawer: MenuDrawer(),
       appBar: AppBar(
         centerTitle: true,
         title: Text(

@@ -21,7 +21,6 @@ class SignInPage extends StatelessWidget {
                     child: EmailSignInForm.create(context),
                   ),
                 ),
-                const SizedBox(height: 20.0),
               ],
             ),
           ),

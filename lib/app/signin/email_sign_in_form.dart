@@ -5,6 +5,7 @@ import 'package:jamiu_class_manager/services/auth.dart';
 import 'package:jamiu_class_manager/services/database.dart';
 import 'package:provider/provider.dart';
 
+import '../landing_page.dart';
 import 'email_sign_change_model.dart';
 import 'form_submit_button.dart';
 import 'sign_in_text_field.dart';
@@ -22,7 +23,7 @@ class EmailSignInForm extends StatefulWidget {
       child: Consumer<Database>(
         builder: (_, database, __) =>
             ChangeNotifierProvider<EmailSignInChangeModel>(
-          create: (_) => EmailSignInChangeModel(auth: auth,database: database),
+          create: (_) => EmailSignInChangeModel(auth: auth, database: database),
           child: Consumer<EmailSignInChangeModel>(
             builder: (_, model, __) => EmailSignInForm(
               model: model,
@@ -45,13 +46,27 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
 
   var _obscureText = true;
   var _isLoading = false;
+  var _isGoogleLoading = false;
 
   EmailSignInChangeModel get model => widget.model;
 
   Future<void> _submit() async {
     try {
+      setState(() {
+        _isLoading = true;
+      });
       await model.submit();
-    } on Exception catch (error) {
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => LandingPage()),
+      );
+      setState(() {
+        _isLoading = false;
+      });
+    } on FirebaseAuthException catch (error) {
+      setState(() {
+        _isLoading = false;
+      });
       showExceptionAlertDialog(
         context,
         title: 'Sign in failed',
@@ -62,8 +77,19 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
 
   Future<void> _signInWithGoogle(BuildContext context) async {
     try {
+      setState(() {
+        _isGoogleLoading = true;
+      });
       await model.signInWithGoogle();
+      if (!mounted) return;
+
+      setState(() {
+        _isGoogleLoading = false;
+      });
     } on FirebaseAuthException catch (e) {
+      setState(() {
+        _isGoogleLoading = false;
+      });
       _showSignInError(context, e);
     }
   }
@@ -206,16 +232,18 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
         ),
       ),
       const SizedBox(height: 15.0),
-      SocialSignInButton(
-        assetName: 'assets/images/google-logo.png',
-        text: Text(
-          'Sign In With Google',
-          style: Theme.of(context).textTheme.bodyText1?.copyWith(
-                fontSize: 16.0,
+      _isGoogleLoading
+          ? LinearProgressIndicator()
+          : SocialSignInButton(
+              assetName: 'assets/images/google-logo.png',
+              text: Text(
+                'Sign In With Google',
+                style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                      fontSize: 16.0,
+                    ),
               ),
-        ),
-        onPressed: () => _signInWithGoogle(context),
-      ),
+              onPressed: () => _signInWithGoogle(context),
+            ),
     ];
   }
 

@@ -12,6 +12,7 @@ class Classwork extends StatefulWidget {
       create: (_) => BoolBloc(),
       child: Consumer<BoolBloc>(
           builder: (_, boolBloc, __) => Classwork(boolBloc: boolBloc)),
+      dispose: (_, bloc) => bloc.dispose(),
     );
   }
 

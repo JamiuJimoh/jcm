@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:jamiu_class_manager/services/database.dart';
 import 'package:provider/provider.dart';
 
 import '../services/auth.dart';
@@ -23,7 +24,10 @@ class LandingPage extends StatelessWidget {
             return SignInPage();
           }
 
-          return HomePage.create(context, uid: user.uid);
+          return Provider<Database>(
+            create: (_) => FireStoreDatabase(uid: user.uid),
+            child: HomePage.create(context),
+          );
         }
         return Scaffold(
           body: Center(child: CircularProgressIndicator()),

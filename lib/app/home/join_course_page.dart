@@ -45,6 +45,7 @@ class JoinCoursePage extends StatefulWidget with CourseValidators {
               // change: change,
             ),
           ),
+          dispose: (_, bloc) => bloc.dispose(),
         ),
         fullscreenDialog: true,
       ),
