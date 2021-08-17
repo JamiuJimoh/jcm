@@ -1,7 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:collection/collection.dart';
+
 import 'package:jamiu_class_manager/common_widgets/custom_elevated_button.dart';
 import 'package:jamiu_class_manager/common_widgets/custom_text_form_field.dart';
 import 'package:jamiu_class_manager/common_widgets/show_exception_alert_dialog.dart';
@@ -10,23 +10,16 @@ import 'package:jamiu_class_manager/services/auth.dart';
 import 'package:jamiu_class_manager/services/database.dart';
 import 'package:provider/provider.dart';
 
-import 'course_change_notifier.dart';
-import 'courses_bloc.dart';
+import 'models/created_course.dart';
 import 'validators.dart';
 
 class JoinCoursePage extends StatefulWidget with CourseValidators {
-  static const id = 'join_course_page';
-
   final Database database;
   final AuthBase auth;
-  final CoursesBloc bloc;
-  // final CourseChangeNotifier change;
 
   JoinCoursePage({
     required this.database,
     required this.auth,
-    required this.bloc,
-    // required this.change,
   });
 
   static Future<void> create(BuildContext context) async {
@@ -35,37 +28,10 @@ class JoinCoursePage extends StatefulWidget with CourseValidators {
 
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => Provider<CoursesBloc>(
-          create: (_) => CoursesBloc(database: database, auth: auth),
-          child: Consumer<CoursesBloc>(
-            builder: (_, bloc, __) => JoinCoursePage(
-              database: database,
-              auth: auth,
-              bloc: bloc,
-              // change: change,
-            ),
-          ),
-          dispose: (_, bloc) => bloc.dispose(),
-        ),
+        builder: (_) => JoinCoursePage(database: database, auth: auth),
         fullscreenDialog: true,
       ),
     );
-    // await Navigator.of(context).push(
-    //   // TODO: FIX 'WRONG COURSEIV ERROR' ERROR.
-    //   MaterialPageRoute(
-    //     builder: (_) => ChangeNotifierProvider<CourseChangeNotifier>(
-    //       create: (_) => CourseChangeNotifier(),
-    //       child: Consumer<CourseChangeNotifier>(
-    //         builder: (_, change, __) => JoinCoursePage(
-    //           database: database,
-    //           auth: auth,
-    //           change: change,
-    //         ),
-    //       ),
-    //     ),
-    //     fullscreenDialog: true,
-    //   ),
-    // );
   }
 
   @override
@@ -73,71 +39,44 @@ class JoinCoursePage extends StatefulWidget with CourseValidators {
 }
 
 class _JoinCoursePageState extends State<JoinCoursePage> {
-  final _formKey = GlobalKey<FormState>();
-
-  var _courseIV = '';
+  final _textController = TextEditingController();
 
   User get user => widget.auth.currentUser!;
-
-  bool _validateAndSaveForm() {
-    final form = _formKey.currentState!;
-    if (form.validate()) {
-      form.save();
-      return true;
-    }
-    return false;
-  }
-
-  Future<void> _submit() async {
-    if (_validateAndSaveForm()) {
-      //  await BlocBuilder<CoursesBloc, bool>(
-      //    builder: (context, state)=> context.read<CoursesBloc>().joinCourse(_courseIV),
-      //   );
-      await widget.bloc.joinCourse(_courseIV);
-
-      widget.bloc.boolStream.listen((event) {
-        print('=============');
-        print(event);
-        print(event.last);
-        if (event.last) {
-          showExceptionAlertDialog(
-            context,
-            title: 'Course not found',
-            exception: Exception('No course matches your course IV'),
-            defaultActionText: 'Dismiss',
-          );
-        }
-        // widget.bloc.drainStream();
-      });
-
-      // print(snapshot.data!);
-      // if (snapshot.data!) {
-      // showExceptionAlertDialog(
-      //   context,
-      //   title: 'Course not found',
-      //   exception: Exception('No course matches your course IV'),
-      //   defaultActionText: 'Dismiss',
-      // );
-      // }
-      // await widget.bloc.boolStream.listen((event) {
-      //   print('===========');
-      //   print(event);
-      //   if (!event) {
-      // showExceptionAlertDialog(
-      //   context,
-      //   title: 'Course not found',
-      //   exception: Exception('No course matches your course IV'),
-      //   defaultActionText: 'Dismiss',
-      // );
-      //   }
-      // });
-    }
-  }
 
   @override
   void dispose() {
     super.dispose();
-    widget.bloc.dispose();
+    _textController.dispose();
+  }
+
+  Future<void> _submit(List<CreatedCourse> createdCourses) async {
+    try {
+      final courseIV = _textController.text;
+      final foundCourse = createdCourses.firstWhereOrNull((course) {
+        return course.courseIV == courseIV &&
+            course.teacherId != widget.auth.currentUser?.uid;
+      });
+
+      if (foundCourse == null) {
+        showExceptionAlertDialog(
+          context,
+          title: 'Course not found',
+          exception: Exception('No course matches your course IV'),
+          defaultActionText: 'Dismiss',
+        );
+      } else {
+        widget.database.joinCourse(foundCourse);
+        Navigator.of(context).pop();
+      }
+    } on FireStoreDatabase catch (e) {
+      showExceptionAlertDialog(
+        context,
+        title: 'Course not found',
+        exception: Exception(e),
+        defaultActionText: 'Dismiss',
+      );
+    }
+    ;
   }
 
   @override
@@ -151,65 +90,80 @@ class _JoinCoursePageState extends State<JoinCoursePage> {
   }
 
   Widget _buildBody(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Card(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Currently Signed in as',
-                  style: Theme.of(context).textTheme.bodyText1?.copyWith(
-                        fontSize: 15.0,
-                        // fontWeight: FontWeight.w600,
+    return StreamBuilder<List<CreatedCourse>>(
+      stream: widget.database.coursesStream(false),
+      builder: (_, snapshot) {
+        if (snapshot.hasData) {
+          final createdCourses = snapshot.data!;
+          if (createdCourses.isNotEmpty) {
+            return Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Currently Signed in as',
+                        style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                              fontSize: 15.0,
+                              // fontWeight: FontWeight.w600,
+                            ),
                       ),
-                ),
-                const SizedBox(height: 17.0),
-                ListTile(
-                  leading: UserCircleAvatar(),
-                  title: Text(user.displayName ?? 'User'),
-                  subtitle: Text(user.email!),
-                ),
-                const SizedBox(height: 15.0),
-                const Divider(
-                  thickness: 0.8,
-                ),
-                const SizedBox(height: 19.0),
-                Text(
-                  'Ask your teacher for the Course IV, then enter it here.',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyText1
-                      ?.copyWith(fontSize: 15.0, fontWeight: FontWeight.w400),
-                ),
-                const SizedBox(height: 15.0),
-                CustomTextFormField(
-                  // initialValue: _initialValue['courseCode'],
-                  labelText: 'Course IV',
-                  hintText: 'e.g NJ6kEDU312',
-                  onSaved: (value) => _courseIV = value!,
-                  validator: (value) => widget.courseIVValidator.isValid(value!)
-                      ? null
-                      : widget.invalidCourseIVErrorText,
-                ),
-                const SizedBox(height: 15.0),
-                CustomElevatedButton(
-                  child: Text(
-                    'JOIN COURSE',
+                      const SizedBox(height: 17.0),
+                      ListTile(
+                        leading: UserCircleAvatar(),
+                        title: Text(user.displayName ?? 'User'),
+                        subtitle: Text(user.email!),
+                      ),
+                      const SizedBox(height: 15.0),
+                      const Divider(
+                        thickness: 0.8,
+                      ),
+                      const SizedBox(height: 19.0),
+                      Text(
+                        'Ask your teacher for the Course IV, then enter it here.',
+                        style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                            fontSize: 15.0, fontWeight: FontWeight.w400),
+                      ),
+                      const SizedBox(height: 15.0),
+                      CustomTextFormField(
+                        // initialValue: _initialValue['courseCode'],
+                        controller: _textController,
+                        labelText: 'Course IV',
+                        hintText: 'e.g NJ6kEDU312',
+                        // errorText: 'Insert courseIV',
+                        // enabled: false,
+                        validator: (value) =>
+                            widget.courseIVValidator.isValid(value!)
+                                ? null
+                                : widget.invalidCourseIVErrorText,
+                      ),
+                      const SizedBox(height: 15.0),
+                      CustomElevatedButton(
+                        child: Text('JOIN COURSE'),
+                        height: 50.0,
+                        onPressed: () => _submit(createdCourses),
+                      ),
+                    ],
                   ),
-                  height: 50.0,
-                  onPressed: _submit,
                 ),
-              ],
-            ),
-          ),
-        ),
-      ),
+              ),
+            );
+          }
+        } else if (snapshot.hasError) {
+          print(snapshot.error);
+          showExceptionAlertDialog(
+            context,
+            title: 'Course not found',
+            exception: Exception('No course matches your course IV'),
+            defaultActionText: 'Dismiss',
+          );
+        }
+        return CircularProgressIndicator();
+      },
     );
   }
 }
