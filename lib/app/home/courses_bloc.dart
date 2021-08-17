@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jamiu_class_manager/app/home/models/user_profile.dart';
 import 'package:jamiu_class_manager/services/auth.dart';
 import 'package:jamiu_class_manager/services/database.dart';
