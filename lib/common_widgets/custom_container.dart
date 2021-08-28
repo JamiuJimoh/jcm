@@ -8,9 +8,11 @@ class CustomContainer extends StatelessWidget {
   final double? minHeight;
   final double? width;
   final double? minWidth;
+  final double? maxWidth;
   final Color? containerColor;
   final double? borderRadius;
   final Gradient? gradient;
+  final DecorationImage? decorationImage;
   final EdgeInsetsGeometry? padding;
   final VoidCallback? onPressed;
   final List<BoxShadow>? boxShadow;
@@ -21,12 +23,14 @@ class CustomContainer extends StatelessWidget {
     this.containerColor,
     this.padding,
     this.height: 100.0,
+    this.width: 100.0,
     this.maxHeight: 100.0,
     this.minHeight: 100.0,
-    this.width: 100.0,
+    this.maxWidth: 100.0,
     this.minWidth: 100.0,
     this.borderRadius: 20.0,
     this.gradient,
+    this.decorationImage,
     this.boxShadow,
     this.onPressed,
   });
@@ -40,6 +44,7 @@ class CustomContainer extends StatelessWidget {
           minHeight: minHeight!,
           maxHeight: maxHeight!,
           minWidth: minWidth!,
+          maxWidth: maxWidth!,
         ),
         child: Container(
           padding: padding,
@@ -47,6 +52,7 @@ class CustomContainer extends StatelessWidget {
             borderRadius: BorderRadius.all(Radius.circular(borderRadius!)),
             color: containerColor,
             gradient: gradient,
+            image: decorationImage,
             border: borderColor != null
                 ? Border(
                     top: BorderSide(color: borderColor!),

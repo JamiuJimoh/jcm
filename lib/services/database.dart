@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:jamiu_class_manager/app/home/models/classroom.dart';
 import 'package:jamiu_class_manager/app/home/models/created_course.dart';
 import 'package:jamiu_class_manager/app/home/models/joined_course.dart';
@@ -16,6 +18,7 @@ abstract class Database {
   Stream<List<Classroom>> classroomStream(String courseID);
   Stream<List<UserProfile>> userProfilesStream({bool isCurrentUser: false});
   Future<void> setUserProfile(UserProfile user, String uid);
+  Future<String> setImageData(File imageFile);
   // Future<void> setUserType(UserModel userModel);
   // Stream<List<UserModel>> usersStream();
   // Stream<UserModel> userStream();
@@ -49,6 +52,12 @@ class FireStoreDatabase implements Database {
   Future<void> setCourse(CreatedCourse course) => _service.setData(
         path: APIPath.course(course.courseId),
         data: course.toMap(),
+      );
+
+  @override
+  Future<String> setImageData(File imageFile) => _service.setImageData(
+        path: APIPath.userImage(uid!),
+        imageFile: imageFile,
       );
 
   @override

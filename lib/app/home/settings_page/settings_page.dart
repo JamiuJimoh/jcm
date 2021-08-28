@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:jamiu_class_manager/app/home/models/user_profile.dart';
@@ -8,7 +10,7 @@ import 'package:jamiu_class_manager/services/auth.dart';
 import 'package:jamiu_class_manager/services/database.dart';
 import 'package:provider/provider.dart';
 
-import 'pick_image_container.dart';
+import 'image_input.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({
@@ -46,17 +48,20 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   final _formKey = GlobalKey<FormState>();
+  File? _pickedImage;
 
   var _isLoading = false;
 
   String? _name;
   String? _surname;
+  String? _userImageUrl;
 
   @override
   void initState() {
     super.initState();
     _name = widget.userProfile.name;
     _surname = widget.userProfile.surname;
+    _userImageUrl = widget.userProfile.imageUrl;
   }
 
   bool _validateAndSaveForm() {
@@ -70,6 +75,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _send() async {
+    String? imgUrl;
     if (_validateAndSaveForm()) {
       try {
         setState(() {
@@ -77,15 +83,20 @@ class _SettingsPageState extends State<SettingsPage> {
         });
 
         print(widget.auth.currentUser);
+        if (_pickedImage != null) {
+          final url = await widget.database.setImageData(_pickedImage!);
+          imgUrl = url;
+        }
         final userProfile = UserProfile(
           userID: widget.userProfile.userID,
           name: _name!,
           surname: _surname!,
           email: widget.userProfile.email,
-          imageUrl: widget.userProfile.imageUrl,
+          imageUrl: imgUrl ?? _userImageUrl!,
         );
         await widget.database
             .setUserProfile(userProfile, widget.auth.currentUser!.uid);
+
         setState(() {
           _isLoading = false;
         });
@@ -115,8 +126,11 @@ class _SettingsPageState extends State<SettingsPage> {
             key: _formKey,
             child: Column(
               children: [
-                Align(child: PickImageContainer(context)),
-                const SizedBox(height: 10.0),
+                ImageInput(
+                  pickedImageFn: (image) => _pickedImage = image,
+                  initialImage: _userImageUrl ?? '',
+                ),
+                const SizedBox(height: 40.0),
                 CustomTextFormField(
                   initialValue: _name,
                   labelText: 'Name',
@@ -146,16 +160,23 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 const SizedBox(height: 20.0),
                 CustomElevatedButton(
-                  // height: double.infinity,
-                  onPressed: _send,
+                  height: 50.0,
+                  width: double.infinity,
+                  onPressed: _isLoading ? null : _send,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      'Update Profile',
-                      style: Theme.of(context).textTheme.bodyText1?.copyWith(
-                            color: Theme.of(context).colorScheme.onPrimary,
+                    child: _isLoading
+                        ? CircularProgressIndicator(color: Colors.white)
+                        : Text(
+                            'Update Profile',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyText1
+                                ?.copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary,
+                                ),
                           ),
-                    ),
                   ),
                 ),
               ],
