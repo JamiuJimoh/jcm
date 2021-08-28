@@ -12,6 +12,8 @@ class APIPath {
 
   static String joinedCourses(String uid) => '/users/$uid/joinedCourses';
 
+  static String userImage(String uid) => 'userImage/$uid/';
+
   static String user(String uid) => 'users/$uid/';
 
   static String users() => 'users/';
