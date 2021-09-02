@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 
 import '../services/auth.dart';
 import 'home/home_page.dart';
-import 'home/models/user_profile.dart';
 import 'signin/sign_in_page.dart';
 
 class LandingPage extends StatelessWidget {

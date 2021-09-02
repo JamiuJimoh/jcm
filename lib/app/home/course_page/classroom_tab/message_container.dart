@@ -11,8 +11,11 @@ class MessageContainer extends CustomContainer {
     required Widget leadingAvatar,
     required String sender,
     required Timestamp time,
+    required VoidCallback onPressed,
   }) : super(
+          onPressed: onPressed,
           borderRadius: 5.0,
+          maxWidth: 400.0,
           maxHeight: 500.0,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
