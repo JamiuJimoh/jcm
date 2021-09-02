@@ -7,6 +7,7 @@ class ShareWithClassContainer extends CustomContainer {
     required Color borderColor,
     required VoidCallback onPressed,
   }) : super(
+          maxWidth: 400.0,
           borderRadius: 5.0,
           onPressed: onPressed,
           width: double.infinity,

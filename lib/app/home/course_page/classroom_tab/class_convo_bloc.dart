@@ -1,6 +1,4 @@
 import 'package:jamiu_class_manager/app/home/models/classroom.dart';
-import 'package:jamiu_class_manager/app/home/models/created_course.dart';
-import 'package:jamiu_class_manager/app/home/models/joined_course.dart';
 import 'package:jamiu_class_manager/app/home/models/user_classroom.dart';
 import 'package:jamiu_class_manager/app/home/models/user_profile.dart';
 import 'package:jamiu_class_manager/services/database.dart';

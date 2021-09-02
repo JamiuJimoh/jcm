@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:jamiu_class_manager/app/home/list_items_builder.dart';
-import 'package:jamiu_class_manager/app/home/models/classroom.dart';
 import 'package:jamiu_class_manager/app/home/models/user_classroom.dart';
-import 'package:jamiu_class_manager/app/utils/months.dart';
 import 'package:jamiu_class_manager/common_widgets/user_circle_avatar.dart';
 import 'package:jamiu_class_manager/services/auth.dart';
 import 'package:jamiu_class_manager/services/database.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+import 'add_comment_page.dart';
 import 'class_convo_bloc.dart';
 import 'edit_classroom_convo_page.dart';
 import '../share_with_class_container.dart';
@@ -85,6 +83,7 @@ class ClassroomWidget extends StatelessWidget {
                         time: userClassroom.classroom.createdAt,
                         leadingAvatar: UserCircleAvatar(
                             imageUrl: userClassroom.userProfile?.imageUrl),
+                        onPressed: () => AddCommentPage.show(context),
                       ),
                       const SizedBox(height: 20.0),
                     ],
