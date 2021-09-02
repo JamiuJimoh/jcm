@@ -41,60 +41,55 @@ class ClassroomWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     initializeDateFormatting('pt_BR', null);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-      child: Column(
-        children: [
-          ShareWithClassContainer(
-            borderColor: Theme.of(context).primaryColor,
-            child: Row(
-              children: [
-                UserCircleAvatar(),
-                const SizedBox(width: 15.0),
-                Text(
-                  'Share with the class...',
-                  style: Theme.of(context)
-                      .textTheme
-                      .subtitle1
-                      ?.copyWith(fontSize: 14.0),
-                ),
-              ],
-            ),
-            onPressed: () =>
-                EditClassroomConvoPage.show(context, courseID: courseID),
-          ),
-          ..._buildDivider(),
-          Expanded(
-            child: StreamBuilder<List<UserClassroom>>(
-              stream: bloc.userClassroomStreamCombiner(courseID),
-              builder: (context, snapshot) {
-                return ListItemsBuilder<UserClassroom>(
-                  snapshot: snapshot,
-                  emptyStateTitle: 'Class is silent',
-                  emptyStateMessage: 'Start a conversation',
-                  itemBuilder: (_, userClassroom) => Column(
-                    children: [
-                      MessageContainer(
-                        context,
-                        sender:
-                            '${userClassroom.userProfile?.name} ${userClassroom.userProfile?.surname}',
-                        message: userClassroom.classroom.message,
-                        borderColor: Theme.of(context).primaryColor,
-                        time: userClassroom.classroom.createdAt,
-                        leadingAvatar: UserCircleAvatar(
-                            imageUrl: userClassroom.userProfile?.imageUrl),
-                        onPressed: () => AddCommentPage.show(context),
-                      ),
-                      const SizedBox(height: 20.0),
-                    ],
+    return StreamBuilder<List<UserClassroom>>(
+        stream: bloc.userClassroomStreamCombiner(courseID),
+        builder: (context, snapshot) {
+          return Padding(
+            padding:
+                const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+            child: ListItemsBuilder<UserClassroom>(
+              snapshot: snapshot,
+              emptyStateTitle: 'Class is silent',
+              emptyStateMessage: 'Start a conversation',
+              itemBuilder: (_, userClassroom) => Column(
+                children: [
+                  ShareWithClassContainer(
+                    borderColor: Theme.of(context).primaryColor,
+                    child: Row(
+                      children: [
+                        UserCircleAvatar(),
+                        const SizedBox(width: 15.0),
+                        Text(
+                          'Share with the class...',
+                          style: Theme.of(context)
+                              .textTheme
+                              .subtitle1
+                              ?.copyWith(fontSize: 14.0),
+                        ),
+                      ],
+                    ),
+                    onPressed: () => EditClassroomConvoPage.show(context,
+                        courseID: courseID),
                   ),
-                );
-              },
+                  ..._buildDivider(),
+                  MessageContainer(
+                    context,
+                    sender:
+                        '${userClassroom.userProfile?.name} ${userClassroom.userProfile?.surname}',
+                    message: userClassroom.classroom.message,
+                    borderColor: Theme.of(context).primaryColor,
+                    time: userClassroom.classroom.createdAt,
+                    leadingAvatar: UserCircleAvatar(
+                        imageUrl: userClassroom.userProfile?.imageUrl),
+                    onPressed: () => AddCommentPage.show(context,
+                        userClassroom: userClassroom),
+                  ),
+                  const SizedBox(height: 20.0),
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+          );
+        });
   }
 
   List<Widget> _buildDivider() {
