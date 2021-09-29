@@ -1,9 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:jamiu_class_manager/app/home/models/user_classroom.dart';
 import 'package:jamiu_class_manager/app/utils/months.dart';
 import 'package:jamiu_class_manager/common_widgets/custom_text_form_field.dart';
-import 'package:jamiu_class_manager/common_widgets/show_exception_alert_dialog.dart';
 import 'package:jamiu_class_manager/common_widgets/user_circle_avatar.dart';
 
 class AddCommentPage extends StatelessWidget {
