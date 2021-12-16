@@ -1,19 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:jamiu_class_manager/app/home/models/classroom.dart';
-import 'package:jamiu_class_manager/common_widgets/custom_text_form_field.dart';
-import 'package:jamiu_class_manager/common_widgets/show_exception_alert_dialog.dart';
-import 'package:jamiu_class_manager/services/auth.dart';
-import 'package:jamiu_class_manager/services/database.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../common_widgets/custom_text_form_field.dart';
+import '../../../../common_widgets/show_exception_alert_dialog.dart';
+import '../../../../services/auth.dart';
+import '../../../../services/database.dart';
+import '../../models/classroom.dart';
+
 class EditClassroomConvoPage extends StatefulWidget {
-  EditClassroomConvoPage({
+  const EditClassroomConvoPage({Key? key, 
     required this.database,
     required this.courseID,
     required this.auth,
     this.classroom,
-  });
+  }) : super(key: key);
   final Database database;
   final String courseID;
   final Classroom? classroom;
@@ -112,10 +113,10 @@ class _EditClassroomConvoPageState extends State<EditClassroomConvoPage> {
       appBar: AppBar(
         actions: [
           _isLoading
-              ? CircularProgressIndicator()
+              ? const CircularProgressIndicator()
               : IconButton(
                   onPressed: _send,
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.send,
                     // color: _isEmptyTextField ? Colors.grey : null,
                   ),

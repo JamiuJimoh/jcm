@@ -102,7 +102,7 @@ class _HomePageState extends State<HomePage> {
       body: _buildBody(context),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _buildModalBottomSheet(context),
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }

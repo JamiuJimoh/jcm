@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:jamiu_class_manager/common_widgets/custom_container.dart';
+
+import '../../../common_widgets/custom_container.dart';
 
 class ShareWithClassContainer extends CustomContainer {
   ShareWithClassContainer({

@@ -1,18 +1,61 @@
 import 'package:flutter/material.dart';
-import 'package:jamiu_class_manager/app/home/models/user_classroom.dart';
-import 'package:jamiu_class_manager/app/utils/months.dart';
-import 'package:jamiu_class_manager/common_widgets/custom_text_form_field.dart';
-import 'package:jamiu_class_manager/common_widgets/user_circle_avatar.dart';
+import 'package:provider/provider.dart';
+
+import 'package:jamiu_class_manager/app/home/course_page/classroom_tab/class_convo_bloc.dart';
+import 'package:jamiu_class_manager/app/home/models/user_thread.dart';
+import 'package:jamiu_class_manager/services/auth.dart';
+
+import '../../../../common_widgets/user_circle_avatar.dart';
+import '../../../../services/database.dart';
+import '../../../utils/months.dart';
+import '../../list_items_builder.dart';
+import '../../models/classroom_convo_thread.dart';
+import '../../models/user_classroom.dart';
+import 'build_bottom_textfield.dart';
+import 'message_container.dart';
 
 class AddCommentPage extends StatelessWidget {
-  AddCommentPage({required this.userClassroom});
+  const AddCommentPage({
+    Key? key,
+    required this.userClassroom,
+    required this.thread,
+    required this.database,
+    required this.bloc,
+    required this.auth,
+  }) : super(key: key);
   final UserClassroom userClassroom;
+  final ClassroomConvoThread? thread;
+  final Database database;
+  final ClassConvoBloc bloc;
+  final AuthBase auth;
 
-  static Future<void> show(BuildContext context,
-      {required UserClassroom userClassroom}) async {
+  static Future<void> show(
+    BuildContext context, {
+    required UserClassroom userClassroom,
+    ClassroomConvoThread? thread,
+  }) async {
+    final auth = Provider.of<AuthBase>(context, listen: false);
+
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => AddCommentPage(userClassroom: userClassroom),
+        builder: (_) => Provider<Database>(
+          create: (_) =>
+              FireStoreDatabase(uid: userClassroom.userProfile!.userID),
+          child: Consumer<Database>(
+            builder: (_, database, __) => Provider<ClassConvoBloc>(
+              create: (_) => ClassConvoBloc(database: database),
+              child: Consumer<ClassConvoBloc>(
+                builder: (_, bloc, __) => AddCommentPage(
+                  userClassroom: userClassroom,
+                  thread: thread,
+                  database: database,
+                  bloc: bloc,
+                  auth: auth,
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -20,55 +63,103 @@ class AddCommentPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Start'),
-      ),
-      body: _buildBody(context),
-      bottomNavigationBar: _BuildBottomTextField(),
+      appBar: AppBar(),
+      body: SafeArea(child: _buildBody(context)),
     );
   }
 
   Widget _buildBody(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ListTile(
-            dense: true,
-            contentPadding: EdgeInsets.only(left: 0.0, right: 0.0),
-            title: Text(
-              '${userClassroom.userProfile?.name} ${userClassroom.userProfile?.surname}',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyText1
-                  ?.copyWith(fontSize: 16.0),
-            ),
-            subtitle: Row(
+    return Column(
+      children: [
+        Expanded(
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 12.0, vertical: 18.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '${userClassroom.classroom.createdAt.toDate().day} ${Months.getMonth(userClassroom.classroom.createdAt.toDate().month)} ${userClassroom.classroom.createdAt.toDate().year} ',
+                ListTile(
+                  dense: true,
+                  contentPadding: const EdgeInsets.only(left: 0.0, right: 0.0),
+                  title: Text(
+                    '${userClassroom.userProfile?.name} ${userClassroom.userProfile?.surname}',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyText1
+                        ?.copyWith(fontSize: 16.0),
+                  ),
+                  subtitle: Row(
+                    children: [
+                      Text(
+                        '${userClassroom.classroom.createdAt.toDate().day} ${Months.getMonth(userClassroom.classroom.createdAt.toDate().month)} ${userClassroom.classroom.createdAt.toDate().year} ',
+                      ),
+                    ],
+                  ),
+                  leading: UserCircleAvatar(
+                    imageUrl: userClassroom.userProfile?.imageUrl,
+                    radius: 35.0,
+                  ),
                 ),
+                ..._buildDivider(),
+                Text(
+                  userClassroom.classroom.message,
+                  style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 17.0,
+                      ),
+                ),
+                const SizedBox(height: 45.0),
+                ..._buildDivider(),
+                const Text('Class Comments'),
+                const SizedBox(height: 10.0),
+                StreamBuilder<List<UserThread>>(
+                    stream: bloc.userThreadStreamCombiner(
+                        userClassroom.classroom.classroomID),
+                    builder: (context, snapshot) {
+                      return Expanded(
+                        child: ListItemsBuilder<UserThread>(
+                          snapshot: snapshot,
+                          emptyStateTitle: 'Class is silent',
+                          emptyStateMessage: 'Start a conversation',
+                          itemBuilder: (_, userThread) => Column(
+                            children: [
+                              ListTile(
+                                leading: UserCircleAvatar(
+                                  imageUrl: userThread.userProfile?.imageUrl,
+                                ),
+                                title: Text(
+                                  '${userThread.userProfile?.name} ${userThread.userProfile?.surname}',
+                                  style: const TextStyle(
+                                      fontSize: 15.0,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                                subtitle: Text(userThread.thread.message),
+                                trailing: Text(
+                                  '${userThread.thread.createdAt.toDate().day} ${Months.getMonth(userThread.thread.createdAt.toDate().month)} ${userThread.thread.createdAt.toDate().year}',
+                                  style: TextStyle(
+                                    fontSize: 12.0,
+                                    fontWeight: FontWeight.w400,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 10.0),
+                            ],
+                          ),
+                        ),
+                      );
+                    }),
               ],
             ),
-            leading: UserCircleAvatar(
-              imageUrl: userClassroom.userProfile?.imageUrl,
-              radius: 35.0,
-            ),
           ),
-          ..._buildDivider(),
-          Text(
-            userClassroom.classroom.message,
-            style: Theme.of(context).textTheme.bodyText1?.copyWith(
-                  fontWeight: FontWeight.w400,
-                  fontSize: 17.0,
-                ),
-          ),
-          const SizedBox(height: 45.0),
-          ..._buildDivider(),
-          Text('Class Comments')
-        ],
-      ),
+        ),
+        BuildBottomTextField(
+          thread: thread,
+          uid: auth.currentUser!.uid,
+          classroomID: userClassroom.classroom.classroomID,
+          database: database,
+        ),
+      ],
     );
   }
 
@@ -80,97 +171,5 @@ class AddCommentPage extends StatelessWidget {
       ),
       const SizedBox(height: 10.0),
     ];
-  }
-}
-
-class _BuildBottomTextField extends StatefulWidget {
-  const _BuildBottomTextField({Key? key}) : super(key: key);
-
-  @override
-  __BuildBottomTextFieldState createState() => __BuildBottomTextFieldState();
-}
-
-class __BuildBottomTextFieldState extends State<_BuildBottomTextField> {
-  final _formKey = GlobalKey<FormState>();
-
-  var _isLoading = false;
-
-  String? _message;
-
-  @override
-  void initState() {
-    super.initState();
-    // if (widget.classroom != null) {
-    //   _message = widget.classroom!.message;
-    // }
-  }
-
-  bool _validateAndSaveForm() {
-    final form = _formKey.currentState!;
-
-    if (form.validate()) {
-      form.save();
-      return true;
-    }
-    return false;
-  }
-
-  Future<void> _send() async {
-    // if (_validateAndSaveForm()) {
-    //   try {
-    //     setState(() {
-    //       _isLoading = true;
-    //     });
-    //     final classroomID =
-    //         widget.classroom?.classroomID ?? documentIdFromCurrentDate();
-    //     print(widget.auth.currentUser);
-    //     final classroom = Classroom(
-    //       createdAt: Timestamp.now(),
-    //       senderID: widget.auth.currentUser!.uid,
-    //       classroomID: classroomID,
-    //       courseID: widget.courseID,
-    //       message: _message!,
-    //     );
-    //     await widget.database.setCourseConvo(classroom);
-    //     setState(() {
-    //       _isLoading = false;
-    //     });
-    //     print(classroom);
-    //     Navigator.of(context).pop();
-    //   } on FirebaseException catch (e) {
-    //     setState(() {
-    //       _isLoading = false;
-    //     });
-    //     showExceptionAlertDialog(
-    //       context,
-    //       title: 'Operation failed',
-    //       exception: e,
-    //     );
-    //   }
-    // }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-      child: Form(
-        key: _formKey,
-        child: CustomTextFormField(
-          suffixIcon: Icon(Icons.send),
-          initialValue: _message,
-          labelText: 'Add a comment...',
-          onSaved: (val) => _message = val,
-          validator: (val) {
-            if (val != null) {
-              if (val.isNotEmpty) {
-                return null;
-              }
-            }
-            return '';
-          },
-        ),
-      ),
-    );
   }
 }

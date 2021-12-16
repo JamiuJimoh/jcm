@@ -26,7 +26,7 @@ class MessageContainer extends CustomContainer {
                     vertical: 11.0, horizontal: 15.0),
                 child: ListTile(
                   dense: true,
-                  contentPadding: EdgeInsets.only(left: 0.0, right: 0.0),
+                  contentPadding: const EdgeInsets.only(left: 0.0, right: 0.0),
                   title: Text(
                     sender,
                     style: Theme.of(context)
