@@ -7,6 +7,10 @@ class APIPath {
 
   static String courseConvos() => '/classroom';
 
+  static String courseConvoThread(String classroomId, String threadId) => '/classroom/$classroomId/threads/$threadId';
+
+  static String courseConvoThreads(String classroomId) => '/classroom/$classroomId/threads';
+
   static String joinCourse(String uid, String joinedCourseId) =>
       '/users/$uid/joinedCourses/$joinedCourseId';
 

@@ -14,7 +14,7 @@ import '../share_with_class_container.dart';
 import 'message_container.dart';
 
 class ClassroomWidget extends StatelessWidget {
-  ClassroomWidget(
+  const ClassroomWidget(
       {required this.courseID, required this.auth, required this.bloc});
   final String courseID;
   final AuthBase auth;
@@ -83,8 +83,10 @@ class ClassroomWidget extends StatelessWidget {
                           time: userClassroom.classroom.createdAt,
                           leadingAvatar: UserCircleAvatar(
                               imageUrl: userClassroom.userProfile?.imageUrl),
-                          onPressed: () => AddCommentPage.show(context,
-                              userClassroom: userClassroom),
+                          onPressed: () => AddCommentPage.show(
+                            context,
+                            userClassroom: userClassroom,
+                          ),
                         ),
                         const SizedBox(height: 20.0),
                       ],

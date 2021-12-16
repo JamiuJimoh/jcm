@@ -7,7 +7,11 @@ import 'classwork_tab/classwork.dart';
 import 'people.dart';
 
 class CoursePage extends StatelessWidget {
-  CoursePage({this.joinedCourse, this.createdCourse});
+  const CoursePage({
+    Key? key,
+    this.joinedCourse,
+    this.createdCourse,
+  }) : super(key: key);
   final JoinedCourse? joinedCourse;
   final CreatedCourse? createdCourse;
 
@@ -36,7 +40,7 @@ class CoursePage extends StatelessWidget {
           title:
               Text((createdCourse?.courseTitle ?? joinedCourse?.courseTitle)!),
           // toolbarHeight: 150.0,
-          bottom: TabBar(
+          bottom:const TabBar(
             tabs: [
               Tab(icon: Icon(Icons.forum), text: 'Classroom'),
               Tab(icon: Icon(Icons.description_outlined), text: 'Classwork'),

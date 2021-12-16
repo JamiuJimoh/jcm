@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:jamiu_class_manager/app/home/models/classroom.dart';
-import 'package:jamiu_class_manager/app/home/models/created_course.dart';
-import 'package:jamiu_class_manager/app/home/models/joined_course.dart';
-import 'package:jamiu_class_manager/app/home/models/user_profile.dart';
-
+import '../app/home/models/classroom.dart';
+import '../app/home/models/classroom_convo_thread.dart';
+import '../app/home/models/created_course.dart';
+import '../app/home/models/joined_course.dart';
+import '../app/home/models/user_profile.dart';
 import 'api_path.dart';
 import 'firestore_service.dart';
 
@@ -13,20 +13,16 @@ abstract class Database {
       bool isCreatedCourseCollectionStream);
   Future<void> setCourse(CreatedCourse course);
   Future<void> setCourseConvo(Classroom classroom);
+  Future<void> setCourseConvoThread(
+      String classroomID, ClassroomConvoThread thread);
+  Stream<List<ClassroomConvoThread>> classroomConvoThreadStream(
+      String classroomID);
   Stream<List<JoinedCourse>> joinedCoursesStream();
   Future<void> joinCourse(CreatedCourse course);
   Stream<List<Classroom>> classroomStream(String courseID);
-  Stream<List<UserProfile>> userProfilesStream({bool isCurrentUser: false});
+  Stream<List<UserProfile>> userProfilesStream({bool isCurrentUser = false});
   Future<void> setUserProfile(UserProfile user, String uid);
   Future<String> setImageData(File imageFile);
-  // Future<void> setUserType(UserModel userModel);
-  // Stream<List<UserModel>> usersStream();
-  // Stream<UserModel> userStream();
-//   Stream<List<Meal>> mealsStream();
-//   Future<void> deleteMeal(Meal meal);
-//   Stream<List<FavoriteMeal>> favoriteMealsStream();
-//   Future<void> setFavoriteMeal(FavoriteMeal favoriteMeal);
-//   // Future<void> deleteFavoriteMeal(Meal meal);
 }
 
 String documentIdFromCurrentDate() => DateTime.now().toIso8601String();
@@ -61,7 +57,7 @@ class FireStoreDatabase implements Database {
       );
 
   @override
-  Stream<List<UserProfile>> userProfilesStream({bool isCurrentUser: false}) =>
+  Stream<List<UserProfile>> userProfilesStream({bool isCurrentUser = false}) =>
       _service.userCollectionStream<UserProfile>(
         isCurrentUser: isCurrentUser,
         uid: uid!,
@@ -88,6 +84,25 @@ class FireStoreDatabase implements Database {
         uid: uid!,
         courseID: courseID,
         builder: (data, documentId) => Classroom.fromMap(data, documentId),
+      );
+
+  @override
+  Future<void> setCourseConvoThread(
+          String classroomID, ClassroomConvoThread thread) =>
+      _service.setData(
+        path: APIPath.courseConvoThread(classroomID, thread.threadID),
+        data: thread.toMap(),
+      );
+
+  @override
+  Stream<List<ClassroomConvoThread>> classroomConvoThreadStream(
+          String classroomID) =>
+      _service.collectionStream<ClassroomConvoThread>(
+        path: APIPath.courseConvoThreads(classroomID),
+        uid: uid!,
+        builder: (data, documentId) =>
+            ClassroomConvoThread.fromMap(data, documentId),
+        isCreatedCourseCollectionStream: false,
       );
 
   @override
