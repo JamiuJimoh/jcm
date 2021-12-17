@@ -1,22 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:jamiu_class_manager/app/home/list_items_builder.dart';
-import 'package:jamiu_class_manager/app/home/models/created_course.dart';
-import 'package:jamiu_class_manager/services/auth.dart';
-import 'package:jamiu_class_manager/services/database.dart';
 import 'package:provider/provider.dart';
 
+import '../../services/auth.dart';
+import '../../services/database.dart';
 import 'course_container.dart';
 import 'course_page/course_page.dart';
 import 'courses_bloc.dart';
 import 'edit_course_page.dart';
 import 'join_course_page.dart';
+import 'list_items_builder.dart';
 import 'menu_drawer.dart';
+import 'models/created_course.dart';
 import 'models/joined_course.dart';
 
 enum CourseType { joinedCourses, createdCourses }
 
 class HomePage extends StatefulWidget {
-  const HomePage({required this.bloc});
+  const HomePage({
+    Key? key,
+    required this.bloc,
+  }) : super(key: key);
+  
   final CoursesBloc bloc;
 
   static Widget create(BuildContext context) {
@@ -52,7 +56,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: MenuDrawer(),
+      drawer: const MenuDrawer(),
       appBar: AppBar(
         centerTitle: true,
         title: Text(

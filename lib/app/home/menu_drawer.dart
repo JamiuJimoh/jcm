@@ -1,12 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:jamiu_class_manager/common_widgets/show_alert_dialog.dart';
-import 'package:jamiu_class_manager/common_widgets/show_exception_alert_dialog.dart';
-import 'package:jamiu_class_manager/common_widgets/user_circle_avatar.dart';
-import 'package:jamiu_class_manager/services/auth.dart';
-import 'package:jamiu_class_manager/services/database.dart';
 import 'package:provider/provider.dart';
 
+import '../../common_widgets/show_alert_dialog.dart';
+import '../../common_widgets/show_exception_alert_dialog.dart';
+import '../../common_widgets/user_circle_avatar.dart';
+import '../../services/auth.dart';
+import '../../services/database.dart';
 import 'course_page/course_page.dart';
 import 'models/created_course.dart';
 import 'models/joined_course.dart';
@@ -14,6 +14,8 @@ import 'models/user_profile.dart';
 import 'settings_page/settings_page.dart';
 
 class MenuDrawer extends StatelessWidget {
+  const MenuDrawer({Key? key}) : super(key: key);
+
   Future<void> _signOut(BuildContext context) async {
     try {
       final auth = Provider.of<AuthBase>(context, listen: false);
@@ -43,35 +45,41 @@ class MenuDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final database = Provider.of<Database>(context, listen: false);
-    return Drawer(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 48.0),
+    return SafeArea(
+      child: Drawer(
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Title(
-                  color: Colors.black,
-                  child: Text(
-                    'Jamiu\'s Classroom Manager',
-                    style: Theme.of(context)
-                        .textTheme
-                        .subtitle1
-                        ?.copyWith(fontSize: 18.0),
-                  ),
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 25.0),
+                color: Theme.of(context).primaryColor,
+                child: Column(
+                  children: [
+                    Title(
+                      color: Colors.black,
+                      child: Text(
+                        'Jamiu\'s Classroom Manager',
+                        style: Theme.of(context)
+                            .textTheme
+                            .subtitle1
+                            ?.copyWith(fontSize: 18.0, color: Colors.white),
+                      ),
+                    ),
+                    const SizedBox(height: 10.0),
+                    ..._buildDivider(Colors.grey[400]),
+                    const SizedBox(height: 20.0),
+                    _buildProfileHead(context, database),
+                    const SizedBox(height: 20.0),
+                  ],
                 ),
               ),
-              ..._buildDivider(),
-              _buildProfileHead(context, database),
               const SizedBox(height: 10.0),
-              ..._buildDivider(),
               StreamBuilder<List<CreatedCourse>>(
                 stream: database.coursesStream(true),
                 builder: (_, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return LinearProgressIndicator();
+                    return const LinearProgressIndicator();
                   }
                   if (snapshot.hasData) {
                     return snapshot.data!.isEmpty
@@ -81,14 +89,14 @@ class MenuDrawer extends StatelessWidget {
                     return Text(snapshot.error.toString());
                   }
 
-                  return LinearProgressIndicator();
+                  return const LinearProgressIndicator();
                 },
               ),
               StreamBuilder<List<JoinedCourse>>(
                 stream: database.joinedCoursesStream(),
                 builder: (_, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return LinearProgressIndicator();
+                    return const LinearProgressIndicator();
                   }
                   if (snapshot.hasData) {
                     return snapshot.data!.isEmpty
@@ -97,7 +105,7 @@ class MenuDrawer extends StatelessWidget {
                             joinedCourse: snapshot.data!,
                           );
                   }
-                  return LinearProgressIndicator();
+                  return const LinearProgressIndicator();
                 },
               ),
               const SizedBox(height: 30.0),
@@ -105,7 +113,7 @@ class MenuDrawer extends StatelessWidget {
                   stream: database.userProfilesStream(isCurrentUser: true),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return LinearProgressIndicator();
+                      return const LinearProgressIndicator();
                     }
                     final userProfiles = snapshot.data!;
                     if (snapshot.hasData) {
@@ -119,7 +127,7 @@ class MenuDrawer extends StatelessWidget {
                                     const EdgeInsets.symmetric(horizontal: 8.0),
                                 child: Row(
                                   children: [
-                                    Icon(Icons.settings_outlined),
+                                    const Icon(Icons.settings_outlined),
                                     const SizedBox(width: 30.0),
                                     Text(
                                       'Settings',
@@ -133,7 +141,7 @@ class MenuDrawer extends StatelessWidget {
                               ),
                             );
                     }
-                    return LinearProgressIndicator();
+                    return const LinearProgressIndicator();
                   }),
               const SizedBox(height: 30.0),
               Padding(
@@ -143,7 +151,7 @@ class MenuDrawer extends StatelessWidget {
                     onTap: () => _confirmSignOut(context),
                     child: Row(
                       children: [
-                        Icon(Icons.logout_outlined),
+                        const Icon(Icons.logout_outlined),
                         const SizedBox(width: 30.0),
                         Text(
                           'Logout',
@@ -171,7 +179,7 @@ class MenuDrawer extends StatelessWidget {
         stream: database.userProfilesStream(isCurrentUser: true),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return LinearProgressIndicator();
+            return const LinearProgressIndicator();
           }
           final userProfiles = snapshot.data!;
           return Align(
@@ -183,15 +191,16 @@ class MenuDrawer extends StatelessWidget {
                 const SizedBox(height: 15.0),
                 Text(
                   '${userProfiles.first.name} ${userProfiles.first.surname}',
-                  style: Theme.of(context).textTheme.bodyText1,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyText1
+                      ?.copyWith(fontSize: 18.0, color: Colors.white),
                 ),
                 const SizedBox(height: 7.0),
                 Text(
                   user.email ?? 'randomuser@gmailcom',
-                  style: Theme.of(context)
-                      .textTheme
-                      .subtitle2
-                      ?.copyWith(fontWeight: FontWeight.w300),
+                  style: Theme.of(context).textTheme.subtitle2?.copyWith(
+                      fontWeight: FontWeight.w300, color: Colors.white),
                 ),
               ],
             ),
@@ -199,11 +208,11 @@ class MenuDrawer extends StatelessWidget {
         });
   }
 
-  List<Widget> _buildDivider() {
+  List<Widget> _buildDivider([Color? color]) {
     return [
-      const SizedBox(height: 10.0),
-      const Divider(
+      Divider(
         thickness: 0.7,
+        color: color,
       ),
       const SizedBox(height: 10.0),
     ];
