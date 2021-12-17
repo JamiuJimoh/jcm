@@ -1,13 +1,13 @@
 import 'dart:async';
 
-import 'package:jamiu_class_manager/app/home/models/user_profile.dart';
-import 'package:jamiu_class_manager/services/auth.dart';
-import 'package:jamiu_class_manager/services/database.dart';
 import 'package:collection/collection.dart';
 import 'package:rxdart/rxdart.dart';
 
+import '../../services/auth.dart';
+import '../../services/database.dart';
 import 'models/created_course.dart';
 import 'models/joined_course.dart';
+import 'models/user_profile.dart';
 
 class CoursesBloc {
   CoursesBloc({required this.database, required this.auth});

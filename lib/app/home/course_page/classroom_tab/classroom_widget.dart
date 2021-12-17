@@ -1,21 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:jamiu_class_manager/app/home/list_items_builder.dart';
-import 'package:jamiu_class_manager/app/home/models/user_classroom.dart';
-import 'package:jamiu_class_manager/common_widgets/user_circle_avatar.dart';
-import 'package:jamiu_class_manager/services/auth.dart';
-import 'package:jamiu_class_manager/services/database.dart';
-import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../common_widgets/user_circle_avatar.dart';
+import '../../../../services/auth.dart';
+import '../../../../services/database.dart';
+import '../../list_items_builder.dart';
+import '../../models/user_classroom.dart';
+import '../share_with_class_container.dart';
 import 'add_comment_page.dart';
 import 'class_convo_bloc.dart';
 import 'edit_classroom_convo_page.dart';
-import '../share_with_class_container.dart';
 import 'message_container.dart';
 
 class ClassroomWidget extends StatelessWidget {
   const ClassroomWidget(
-      {required this.courseID, required this.auth, required this.bloc});
+      {Key? key,
+      required this.courseID,
+      required this.auth,
+      required this.bloc})
+      : super(key: key);
+      
   final String courseID;
   final AuthBase auth;
   final ClassConvoBloc bloc;
