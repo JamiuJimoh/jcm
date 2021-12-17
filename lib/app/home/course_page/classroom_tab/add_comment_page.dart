@@ -118,6 +118,7 @@ class AddCommentPage extends StatelessWidget {
                     builder: (context, snapshot) {
                       return Expanded(
                         child: ListItemsBuilder<UserThread>(
+                          reverseList: false,
                           snapshot: snapshot,
                           emptyStateTitle: 'Class is silent',
                           emptyStateMessage: 'Start a conversation',

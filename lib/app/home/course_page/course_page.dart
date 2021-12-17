@@ -4,7 +4,7 @@ import '../models/created_course.dart';
 import '../models/joined_course.dart';
 import 'classroom_tab/classroom_widget.dart';
 import 'classwork_tab/classwork.dart';
-import 'people.dart';
+import 'people_tab/people.dart';
 
 class CoursePage extends StatelessWidget {
   const CoursePage({
@@ -40,7 +40,7 @@ class CoursePage extends StatelessWidget {
           title:
               Text((createdCourse?.courseTitle ?? joinedCourse?.courseTitle)!),
           // toolbarHeight: 150.0,
-          bottom:const TabBar(
+          bottom: const TabBar(
             tabs: [
               Tab(icon: Icon(Icons.forum), text: 'Classroom'),
               Tab(icon: Icon(Icons.description_outlined), text: 'Classwork'),
@@ -57,7 +57,10 @@ class CoursePage extends StatelessWidget {
                   : joinedCourse!.courseId,
             ),
             Classwork.create(context),
-            People(),
+            People.create(
+              context,
+              course: joinedCourse == null ? createdCourse! : joinedCourse!,
+            ),
           ],
         ),
       ),

@@ -1,19 +1,20 @@
-class CreatedCourse {
-  final String courseId;
-  final String courseIV;
-  final String teacherId;
-  final String courseTitle;
-  final String courseCode;
-  final String teacherName;
+import 'course.dart';
 
+class CreatedCourse extends Course {
   CreatedCourse({
-    required this.courseId,
-    required this.courseIV,
-    required this.teacherId,
-    required this.courseTitle,
-    required this.courseCode,
-    required this.teacherName,
-  });
+    required String courseId,
+    required String courseIV,
+    required String teacherId,
+    required String courseTitle,
+    required String courseCode,
+    required String teacherName,
+  }) : super(
+            courseId: courseId,
+            courseIV: courseId,
+            courseCode: courseCode,
+            courseTitle: courseTitle,
+            teacherId: teacherId,
+            teacherName: teacherName);
 
   factory CreatedCourse.fromMap(Map<String, dynamic> data, String documentId) {
     final String teacherId = data['teacherId'];
