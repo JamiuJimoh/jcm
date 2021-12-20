@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:jamiu_class_manager/app/home/course_page/people_tab/people_bloc.dart';
 import 'package:jamiu_class_manager/app/home/join_course_page.dart';
 import 'package:jamiu_class_manager/app/home/models/course.dart';
 import 'package:jamiu_class_manager/app/home/models/joined_course.dart';
+import 'package:jamiu_class_manager/app/home/models/student.dart';
 import 'package:jamiu_class_manager/app/home/models/user_profile.dart';
 import 'package:jamiu_class_manager/common_widgets/user_circle_avatar.dart';
 import 'package:provider/provider.dart';
@@ -15,10 +17,12 @@ class People extends StatelessWidget {
     Key? key,
     required this.course,
     required this.database,
+    required this.bloc,
   }) : super(key: key);
 
   final Course course;
   final Database database;
+  final PeopleBloc bloc;
 
   static Widget create(context, {required Course course}) {
     final auth = Provider.of<AuthBase>(context, listen: false);
@@ -28,9 +32,15 @@ class People extends StatelessWidget {
       child: Consumer<Database>(
         builder: (_, database, __) =>
             // ClassroomWidget(courseID: courseID, auth: auth, bloc: bloc),
-            People(
-          course: course,
-          database: database,
+            Provider<PeopleBloc>(
+          create: (_) => PeopleBloc(database: database),
+          child: Consumer<PeopleBloc>(
+            builder: (_, bloc, __) => People(
+              course: course,
+              database: database,
+              bloc: bloc,
+            ),
+          ),
         ),
       ),
     );
@@ -84,7 +94,7 @@ class People extends StatelessWidget {
           ),
           ..._buildDivider(Theme.of(context).primaryColor),
           StreamBuilder<List<UserProfile>>(
-            stream: database.instructorStream(teacherId: course.teacherId),
+            stream: bloc.studentsStreamCombiner(course.courseId),
             builder: (context, snapshot) {
               print(snapshot.data);
               return ListItemsBuilder<UserProfile>(
@@ -92,18 +102,18 @@ class People extends StatelessWidget {
                 snapshot: snapshot,
                 emptyStateTitle: 'Class is empty',
                 emptyStateMessage: 'Start class',
-                itemBuilder: (_, instructor) => ListTile(
+                itemBuilder: (_, student) => ListTile(
                   dense: true,
                   contentPadding: const EdgeInsets.only(left: 0.0, right: 0.0),
                   title: Text(
-                    '${instructor.name} ${instructor.surname}',
+                    '${student.name} ${student.surname}',
                     style: Theme.of(context)
                         .textTheme
                         .bodyText1
                         ?.copyWith(fontSize: 16.0),
                   ),
                   leading: UserCircleAvatar(
-                    imageUrl: instructor.imageUrl,
+                    imageUrl: student.imageUrl,
                     radius: 20.0,
                   ),
                 ),

@@ -4,6 +4,7 @@ import '../app/home/models/classroom.dart';
 import '../app/home/models/classroom_convo_thread.dart';
 import '../app/home/models/created_course.dart';
 import '../app/home/models/joined_course.dart';
+import '../app/home/models/student.dart';
 import '../app/home/models/user_profile.dart';
 import 'api_path.dart';
 import 'firestore_service.dart';
@@ -12,6 +13,8 @@ abstract class Database {
   Stream<List<CreatedCourse>> coursesStream(
       bool isCreatedCourseCollectionStream);
   Future<void> setCourse(CreatedCourse course);
+  Stream<List<Student>> studentsStream(String courseId);
+  Future<void> setStudent(CreatedCourse course, Student student);
   Future<void> setCourseConvo(Classroom classroom);
   Future<void> setCourseConvoThread(
       String classroomID, ClassroomConvoThread thread);
@@ -49,6 +52,21 @@ class FireStoreDatabase implements Database {
   Future<void> setCourse(CreatedCourse course) => _service.setData(
         path: APIPath.course(course.courseId),
         data: course.toMap(),
+      );
+
+  @override
+  Stream<List<Student>> studentsStream(String courseId) =>
+      _service.collectionStream<Student>(
+        uid: uid!,
+        path: APIPath.students(courseId),
+        builder: (data, documentId) => Student.fromJson(data),
+      );
+
+  @override
+  Future<void> setStudent(CreatedCourse course, Student student) =>
+      _service.setData(
+        path: APIPath.student(course.courseId, uid!),
+        data: student.toMap(),
       );
 
   @override

@@ -1,14 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
-import 'package:jamiu_class_manager/app/home/models/user_profile.dart';
+import 'package:jamiu_class_manager/app/home/models/student.dart';
+import 'models/user_profile.dart';
 
-import 'package:jamiu_class_manager/common_widgets/custom_elevated_button.dart';
-import 'package:jamiu_class_manager/common_widgets/custom_text_form_field.dart';
-import 'package:jamiu_class_manager/common_widgets/show_exception_alert_dialog.dart';
-import 'package:jamiu_class_manager/common_widgets/user_circle_avatar.dart';
-import 'package:jamiu_class_manager/services/auth.dart';
-import 'package:jamiu_class_manager/services/database.dart';
+import '../../common_widgets/custom_elevated_button.dart';
+import '../../common_widgets/custom_text_form_field.dart';
+import '../../common_widgets/show_exception_alert_dialog.dart';
+import '../../common_widgets/user_circle_avatar.dart';
+import '../../services/auth.dart';
+import '../../services/database.dart';
 import 'package:provider/provider.dart';
 
 import 'models/created_course.dart';
@@ -18,7 +19,8 @@ class JoinCoursePage extends StatefulWidget with CourseValidators {
   final Database database;
   final AuthBase auth;
 
-  JoinCoursePage({required this.database, required this.auth});
+  JoinCoursePage({Key? key, required this.database, required this.auth})
+      : super(key: key);
 
   static Future<void> create(BuildContext context) async {
     final database = Provider.of<Database>(context, listen: false);
@@ -74,7 +76,9 @@ class _JoinCoursePageState extends State<JoinCoursePage> {
         setState(() {
           _isLoading = false;
         });
+        final student = Student(studentId: widget.auth.currentUser!.uid);
         widget.database.joinCourse(foundCourse);
+        await widget.database.setStudent(foundCourse, student);
         Navigator.of(context).pop();
       }
     } on FireStoreDatabase catch (e) {
@@ -94,7 +98,7 @@ class _JoinCoursePageState extends State<JoinCoursePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Join course'),
+        title: const Text('Join course'),
       ),
       body: _buildBody(context),
     );
@@ -156,7 +160,6 @@ class _JoinCoursePageState extends State<JoinCoursePage> {
             );
           }
         } else if (snapshot.hasError) {
-          print(snapshot.error);
           showExceptionAlertDialog(
             context,
             title: 'User Error',
@@ -164,7 +167,7 @@ class _JoinCoursePageState extends State<JoinCoursePage> {
             defaultActionText: 'Dismiss',
           );
         }
-        return LinearProgressIndicator();
+        return const LinearProgressIndicator();
       },
     );
   }
@@ -175,43 +178,43 @@ class _JoinCoursePageState extends State<JoinCoursePage> {
       builder: (_, snapshot) {
         if (snapshot.hasData) {
           final createdCourses = snapshot.data!;
-          if (createdCourses.isNotEmpty) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                CustomTextFormField(
-                  controller: _textController,
-                  labelText: 'Course IV',
-                  hintText: 'e.g NJ6kEDU312',
-                  onChanged: (value) {
-                    print(value.isEmpty);
-                    setState(() {
-                      _canSubmit = true;
-                    });
-                    if (value.isEmpty) {
-                      _canSubmit = false;
-                    }
-                  },
-                ),
-                const SizedBox(height: 15.0),
-                CustomElevatedButton(
-                  child: _isLoading
-                      ? CircularProgressIndicator()
-                      : Text(
-                          'JOIN COURSE',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyText1
-                              ?.copyWith(color: Colors.white, fontSize: 16.0),
-                        ),
-                  height: 50.0,
-                  onPressed: !_canSubmit ? null : () => _submit(createdCourses),
-                ),
-              ],
-            );
-          }
+          // if (createdCourses.isNotEmpty) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              CustomTextFormField(
+                controller: _textController,
+                labelText: 'Course IV',
+                hintText: 'e.g NJ6kEDU312',
+                onChanged: (value) {
+                  setState(() {
+                    _canSubmit = true;
+                  });
+                  if (value.isEmpty) {
+                    _canSubmit = false;
+                  }
+                },
+              ),
+              const SizedBox(height: 15.0),
+              CustomElevatedButton(
+                child: _isLoading
+                    ? const CircularProgressIndicator()
+                    : Text(
+                        'JOIN COURSE',
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyText1
+                            ?.copyWith(color: Colors.white, fontSize: 16.0),
+                      ),
+                height: 50.0,
+                onPressed: !_canSubmit ? null : () => _submit(createdCourses),
+              ),
+            ],
+          );
+          // } else {
+          //   const Text('No courses yet');
+          // }
         } else if (snapshot.hasError) {
-          print(snapshot.error);
           showExceptionAlertDialog(
             context,
             title: 'Course not found',
@@ -219,7 +222,7 @@ class _JoinCoursePageState extends State<JoinCoursePage> {
             defaultActionText: 'Dismiss',
           );
         }
-        return LinearProgressIndicator();
+        return const LinearProgressIndicator();
       },
     );
   }
