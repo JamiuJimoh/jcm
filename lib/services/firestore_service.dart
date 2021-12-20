@@ -35,7 +35,7 @@ class FirestoreService {
   Stream<List<T>> collectionStream<T>({
     required String path,
     required String uid,
-    required bool isCreatedCourseCollectionStream,
+     bool isCreatedCourseCollectionStream=false,
     required T Function(Map<String, dynamic> data, String documentId) builder,
   }) {
     final ref = isCreatedCourseCollectionStream

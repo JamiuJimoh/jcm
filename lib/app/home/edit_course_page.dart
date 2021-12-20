@@ -89,7 +89,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
   }
 
   String _generateCourseIV({required String courseCode}) {
-    Random random = new Random();
+    Random random = Random();
     int randomNumber = random.nextInt(10);
     final teacherId = widget.auth.currentUser!.uid;
 
@@ -146,7 +146,6 @@ class _EditCoursePageState extends State<EditCoursePage> {
         title: Text(
           widget.course != null ? 'Edit Course' : 'Create Course',
         ),
-        
       ),
       body: Form(
         key: _formKey,
@@ -200,7 +199,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
                     width: double.infinity,
                     height: 47.00,
                     child: _isLoading
-                        ? CircularProgressIndicator()
+                        ? const CircularProgressIndicator()
                         : Text(
                             'Create Course',
                             style: Theme.of(context)
