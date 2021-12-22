@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'bool_bloc.dart';
+import 'bottom_sheet_content.dart';
 
 class Classwork extends StatefulWidget {
-  Classwork({required this.boolBloc});
+  const Classwork({
+    Key? key,
+    required this.boolBloc,
+  }) : super(key: key);
   final BoolBloc boolBloc;
   static Widget create(context) {
     return Provider<BoolBloc>(
@@ -20,6 +24,16 @@ class Classwork extends StatefulWidget {
 }
 
 class _ClassworkState extends State<Classwork> {
+  Future<void> _buildModalBottomSheet() {
+    return showModalBottomSheet(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      context: context,
+      builder: (_) => const BottomSheetContent(),
+    );
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -28,43 +42,11 @@ class _ClassworkState extends State<Classwork> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<bool>(
-        // initialData: false,
-
-        stream: widget.boolBloc.boolStream,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            CircularProgressIndicator();
-          }
-          return Container(
-            height: 500.0,
-            width: 500.0,
-            color: Colors.green,
-            child: Center(
-              child: Column(
-                children: [
-                  Text(snapshot.data.toString(),
-                      style: Theme.of(context).textTheme.headline5),
-                  Row(
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          widget.boolBloc.addBoolVal();
-                          widget.boolBloc.boolStream
-                              .listen((event) => print(event));
-                        },
-                        child: Text('Falsify'),
-                      ),
-                      // ElevatedButton(
-                      //   onPressed: () => context.read<BoolCubit>().truthify(),
-                      //   child: Text('truthify'),
-                      // ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: _buildModalBottomSheet,
+        child: const Icon(Icons.add),
+      ),
+    );
   }
 }
