@@ -22,12 +22,12 @@ class EditCoursePage extends StatefulWidget with CourseValidators {
   final CreatedCourse? course;
   final CoursesBloc bloc;
 
-  EditCoursePage({
+  EditCoursePage({Key? key, 
     required this.database,
     required this.auth,
     required this.bloc,
     this.course,
-  });
+  }) : super(key: key);
 
   static Future<void> show(BuildContext context,
       {CreatedCourse? course}) async {

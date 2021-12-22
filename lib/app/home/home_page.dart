@@ -20,7 +20,7 @@ class HomePage extends StatefulWidget {
     Key? key,
     required this.bloc,
   }) : super(key: key);
-  
+
   final CoursesBloc bloc;
 
   static Widget create(BuildContext context) {
@@ -46,6 +46,9 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _buildModalBottomSheet(BuildContext context) {
     return showModalBottomSheet(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8.0),
+      ),
       context: context,
       builder: (_) => SizedBox(
         child: _modalBottomSheetChild(context),
@@ -225,19 +228,19 @@ class _HomePageState extends State<HomePage> {
           children: [
             TextButton(
               onPressed: () {
-                print('Create');
                 Navigator.of(context).pop();
                 EditCoursePage.show(context);
               },
-              child: Text('Create a course', style: TextStyle(fontSize: 16.0)),
+              child: const Text('Create a course',
+                  style: TextStyle(fontSize: 16.0)),
             ),
             TextButton(
               onPressed: () {
-                print('Join');
                 Navigator.of(context).pop();
                 JoinCoursePage.create(context);
               },
-              child: Text('Join a course', style: TextStyle(fontSize: 16.0)),
+              child:
+                  const Text('Join a course', style: TextStyle(fontSize: 16.0)),
             ),
           ],
         ),
