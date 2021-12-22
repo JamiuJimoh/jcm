@@ -10,7 +10,7 @@ class CreatedCourse extends Course {
     required String teacherName,
   }) : super(
             courseId: courseId,
-            courseIV: courseId,
+            courseIV: courseIV,
             courseCode: courseCode,
             courseTitle: courseTitle,
             teacherId: teacherId,

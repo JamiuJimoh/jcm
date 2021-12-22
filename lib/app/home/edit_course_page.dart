@@ -8,6 +8,7 @@ import 'package:jamiu_class_manager/common_widgets/show_exception_alert_dialog.d
 import 'package:jamiu_class_manager/services/auth.dart';
 import 'package:jamiu_class_manager/services/database.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 
 import 'courses_bloc.dart';
 import 'models/created_course.dart';
@@ -93,9 +94,18 @@ class _EditCoursePageState extends State<EditCoursePage> {
     int randomNumber = random.nextInt(10);
     final teacherId = widget.auth.currentUser!.uid;
 
-    final courseIV =
+    final localGen =
         teacherId.substring(randomNumber, 14) + courseCode.replaceAll(' ', '');
-    return courseIV;
+
+    const uuid = Uuid();
+
+    final uuidGen = uuid.v5(Uuid.NAMESPACE_URL, localGen);
+
+    final splitted = uuidGen.split('-');
+
+    final finalCourseIV = splitted[1][0] + splitted[3][3] + splitted[0];
+
+    return finalCourseIV;
   }
 
   Future<void> _submit() async {
@@ -104,6 +114,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
         setState(() {
           _isLoading = true;
         });
+
         final courseId = widget.course?.courseId ?? documentIdFromCurrentDate();
         final teacherId = widget.auth.currentUser!.uid;
         final courseIV =
@@ -120,7 +131,6 @@ class _EditCoursePageState extends State<EditCoursePage> {
         setState(() {
           _isLoading = false;
         });
-        print(course);
         Navigator.of(context).pop();
       } on FirebaseException catch (e) {
         setState(() {
