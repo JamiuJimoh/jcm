@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:jamiu_class_manager/app/home/course_page/people_tab/people_bloc.dart';
-import 'package:jamiu_class_manager/app/home/join_course_page.dart';
-import 'package:jamiu_class_manager/app/home/models/course.dart';
-import 'package:jamiu_class_manager/app/home/models/joined_course.dart';
-import 'package:jamiu_class_manager/app/home/models/student.dart';
-import 'package:jamiu_class_manager/app/home/models/user_profile.dart';
-import 'package:jamiu_class_manager/common_widgets/user_circle_avatar.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../common_widgets/user_circle_avatar.dart';
 import '../../../../services/auth.dart';
 import '../../../../services/database.dart';
 import '../../list_items_builder.dart';
+import '../../models/course.dart';
+import '../../models/joined_course.dart';
+import '../../models/user_profile.dart';
+import 'people_bloc.dart';
 
 class People extends StatelessWidget {
   const People({
@@ -96,12 +94,11 @@ class People extends StatelessWidget {
           StreamBuilder<List<UserProfile>>(
             stream: bloc.studentsStreamCombiner(course.courseId),
             builder: (context, snapshot) {
-              print(snapshot.data);
               return ListItemsBuilder<UserProfile>(
                 scrollable: false,
                 snapshot: snapshot,
                 emptyStateTitle: 'Class is empty',
-                emptyStateMessage: 'Start class',
+                emptyStateMessage: 'Invite Students',
                 itemBuilder: (_, student) => ListTile(
                   dense: true,
                   contentPadding: const EdgeInsets.only(left: 0.0, right: 0.0),
