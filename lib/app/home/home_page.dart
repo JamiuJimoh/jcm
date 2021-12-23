@@ -32,7 +32,6 @@ class HomePage extends StatefulWidget {
         child: Consumer<CoursesBloc>(
           builder: (_, bloc, __) => HomePage(bloc: bloc),
         ),
-        dispose: (_, bloc) => bloc.dispose(),
       ),
     );
   }

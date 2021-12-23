@@ -1,5 +1,8 @@
 import 'dart:io';
 
+import 'package:jamiu_class_manager/app/home/models/course.dart';
+import 'package:jamiu_class_manager/app/home/models/course_material.dart';
+
 import '../app/home/models/classroom.dart';
 import '../app/home/models/classroom_convo_thread.dart';
 import '../app/home/models/created_course.dart';
@@ -14,6 +17,9 @@ abstract class Database {
       bool isCreatedCourseCollectionStream);
   Future<void> setCourse(CreatedCourse course);
   Stream<List<Student>> studentsStream(String courseId);
+  Future<void> setMaterial(String courseId, CourseMaterial material);
+  Future<void> deleteMaterial(String courseId, String materialId);
+  Stream<List<CourseMaterial>> materialsStream(String courseId);
   Future<void> setStudent(CreatedCourse course, Student student);
   Future<void> setCourseConvo(Classroom classroom);
   Future<void> setCourseConvoThread(
@@ -67,6 +73,27 @@ class FireStoreDatabase implements Database {
       _service.setData(
         path: APIPath.student(course.courseId, uid!),
         data: student.toMap(),
+      );
+
+  @override
+  Future<void> setMaterial(String courseId, CourseMaterial material) =>
+      _service.setData(
+        path: APIPath.courseMaterial(courseId, material.materialId),
+        data: material.toMap(),
+      );
+
+  @override
+  Stream<List<CourseMaterial>> materialsStream(String courseId) =>
+      _service.collectionStream<CourseMaterial>(
+        uid: uid!,
+        path: APIPath.courseMaterials(courseId),
+        builder: (data, documentId) => CourseMaterial.fromJson(data),
+      );
+
+  @override
+  Future<void> deleteMaterial(String courseId, String materialId) =>
+      _service.deleteData(
+        path: APIPath.courseMaterial(courseId, materialId),
       );
 
   @override

@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../course_materials/edit_materials_page.dart';
+
 class BottomSheetContent extends StatelessWidget {
-  const BottomSheetContent({Key? key}) : super(key: key);
+  const BottomSheetContent({
+    Key? key,
+    required this.courseId,
+  }) : super(key: key);
+  final String courseId;
 
   @override
   Widget build(BuildContext context) {
@@ -17,16 +23,21 @@ class BottomSheetContent extends StatelessWidget {
           ),
           const SizedBox(height: 5.0),
           Column(
-            children: const [
+            children: [
               ListTile(
+                horizontalTitleGap: 0.0,
+                leading:
+                    const Icon(Icons.class__outlined, color: Colors.black54),
+                title: const Text('Material'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  EditMaterialPage.show(context, courseId: courseId);
+                },
+              ),
+              const ListTile(
                 horizontalTitleGap: 0.0,
                 leading: Icon(Icons.assignment_outlined, color: Colors.black54),
                 title: Text('Assignment'),
-              ),
-              ListTile(
-                horizontalTitleGap: 0.0,
-                leading: Icon(Icons.class__outlined, color: Colors.black54),
-                title: Text('Material'),
               ),
             ],
           ),
