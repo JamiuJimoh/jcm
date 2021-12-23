@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Months {
-  static const months = const [
+  static const months = [
     'Jan',
     'Feb',
     'March',
@@ -23,4 +25,13 @@ class Months {
     }
     return month;
   }
+
+  static String getDate(Timestamp time) =>
+      '${time.toDate().day} ${Months.getMonth(time.toDate().month)} ${time.toDate().year}';
+
+  static String getTime(Timestamp time) =>
+      '${time.toDate().hour}:${time.toDate().minute}';
+
+  static String completeDate(Timestamp time) =>
+      '${getDate(time)}, ${getTime(time)}';
 }

@@ -29,7 +29,6 @@ class People extends StatelessWidget {
       create: (_) => FireStoreDatabase(uid: auth.currentUser!.uid),
       child: Consumer<Database>(
         builder: (_, database, __) =>
-            // ClassroomWidget(courseID: courseID, auth: auth, bloc: bloc),
             Provider<PeopleBloc>(
           create: (_) => PeopleBloc(database: database),
           child: Consumer<PeopleBloc>(

@@ -31,7 +31,7 @@ class CustomTextFormField extends StatelessWidget {
     this.cursorColor,
     this.fillColor,
     this.maxLines,
-    this.borderRadius: 5.0,
+    this.borderRadius= 5.0,
     this.labelText,
     this.hintText,
     this.initialValue,
@@ -45,9 +45,9 @@ class CustomTextFormField extends StatelessWidget {
     this.onChanged,
     this.controller,
     this.validator,
-    this.obscureText: false,
-    this.enabled: true,
-    this.autofocus: false,
+    this.obscureText= false,
+    this.enabled= true,
+    this.autofocus= false,
   }) : super(key: key);
   @override
   Widget build(BuildContext context) {

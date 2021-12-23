@@ -2,14 +2,14 @@ import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:jamiu_class_manager/common_widgets/custom_elevated_button.dart';
-import 'package:jamiu_class_manager/common_widgets/custom_text_form_field.dart';
-import 'package:jamiu_class_manager/common_widgets/show_exception_alert_dialog.dart';
-import 'package:jamiu_class_manager/services/auth.dart';
-import 'package:jamiu_class_manager/services/database.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../common_widgets/custom_elevated_button.dart';
+import '../../common_widgets/custom_text_form_field.dart';
+import '../../common_widgets/show_exception_alert_dialog.dart';
+import '../../services/auth.dart';
+import '../../services/database.dart';
 import 'courses_bloc.dart';
 import 'models/created_course.dart';
 import 'validators.dart';
@@ -22,7 +22,8 @@ class EditCoursePage extends StatefulWidget with CourseValidators {
   final CreatedCourse? course;
   final CoursesBloc bloc;
 
-  EditCoursePage({Key? key, 
+  EditCoursePage({
+    Key? key,
     required this.database,
     required this.auth,
     required this.bloc,
@@ -46,7 +47,6 @@ class EditCoursePage extends StatefulWidget with CourseValidators {
               bloc: bloc,
             ),
           ),
-          dispose: (_, bloc) => bloc.dispose(),
         ),
         fullscreenDialog: true,
       ),

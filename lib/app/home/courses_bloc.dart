@@ -11,33 +11,8 @@ import 'models/user_profile.dart';
 
 class CoursesBloc {
   CoursesBloc({required this.database, required this.auth});
-  // CoursesBloc({required this.database});
   final Database database;
   final AuthBase auth;
-
-  final _boolBehaviorSubject = BehaviorSubject<List<bool>>();
-
-  Stream<List<bool>> get boolStream => _boolBehaviorSubject.stream;
-  // void addBoolVal() => _boolBehaviorSubject.add(true);
-  void dispose() {
-    _boolBehaviorSubject.close();
-  }
-
-  Future<void> joinCourse(String courseIV) async {
-    database.coursesStream(false).listen((event) {
-      final foundCourse = event.firstWhereOrNull(
-        (course) =>
-            course.courseIV == courseIV &&
-            course.teacherId != auth.currentUser?.uid,
-      );
-      if (foundCourse == null) {
-        _boolBehaviorSubject.add([true]);
-      } else {
-        database.joinCourse(foundCourse);
-        _boolBehaviorSubject.add([false]);
-      }
-    });
-  }
 
   Stream<List<JoinedCourse>> get joinedCourseStreamCombiner =>
       Rx.combineLatest2(

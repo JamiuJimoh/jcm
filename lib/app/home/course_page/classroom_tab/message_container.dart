@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:jamiu_class_manager/app/utils/months.dart';
-import 'package:jamiu_class_manager/common_widgets/custom_container.dart';
+
+import '../../../../common_widgets/custom_container.dart';
+import '../../../utils/months.dart';
 
 class MessageContainer extends CustomContainer {
   MessageContainer(
@@ -34,13 +35,7 @@ class MessageContainer extends CustomContainer {
                         .bodyText1
                         ?.copyWith(fontSize: 16.0),
                   ),
-                  subtitle: Row(
-                    children: [
-                      Text(
-                        '${time.toDate().day} ${Months.getMonth(time.toDate().month)} ${time.toDate().year} ',
-                      ),
-                    ],
-                  ),
+                  subtitle: Text(Months.getDate(time)),
                   leading: leadingAvatar,
                 ),
               ),

@@ -3,6 +3,12 @@ class APIPath {
 
   static String courses() => '/courses';
 
+  static String courseMaterial(String courseId, String materialId) =>
+      '/courses/$courseId/materials/$materialId';
+
+  static String courseMaterials(String courseId) =>
+      '/courses/$courseId/materials';
+
   static String student(String courseId, String uid) =>
       '/courses/$courseId/students/$uid';
 
