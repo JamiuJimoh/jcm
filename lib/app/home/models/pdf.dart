@@ -1,13 +1,16 @@
-class PDFs {
+class PDF {
+  final String pdfID;
   final String pdf;
   final String materialID;
-  PDFs({
+  PDF({
+    required this.pdfID,
     required this.pdf,
     required this.materialID,
   });
 
-  factory PDFs.fromJson(Map<String, dynamic> data) {
-    return PDFs(
+  factory PDF.fromJson(Map<String, dynamic> data, String documentId) {
+    return PDF(
+      pdfID: documentId,
       pdf: data['pdf'],
       materialID: data['materialID'],
     );
@@ -15,6 +18,7 @@ class PDFs {
 
   Map<String, dynamic> toMap() {
     return {
+      'pdfID': pdfID,
       'pdf': pdf,
       'materialID': materialID,
     };
