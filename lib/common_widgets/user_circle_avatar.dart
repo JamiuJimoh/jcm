@@ -3,10 +3,11 @@ import 'package:jamiu_class_manager/services/auth.dart';
 import 'package:provider/provider.dart';
 
 class UserCircleAvatar extends StatelessWidget {
-  UserCircleAvatar({
+  const UserCircleAvatar({
+    Key? key,
     this.radius,
     this.imageUrl,
-  });
+  }) : super(key: key);
   final double? radius;
   final String? imageUrl;
 
@@ -18,24 +19,24 @@ class UserCircleAvatar extends StatelessWidget {
   }
 
   CircleAvatar buildUserAvatar(String? authUserImageUrl) {
-    final assetImage = 'assets/images/blank-profile-picture.png';
+    const assetImage = 'assets/images/blank-profile-picture.png';
     if (imageUrl == null) {
       return CircleAvatar(
         radius: radius,
         backgroundImage: authUserImageUrl == null
-            ? AssetImage(assetImage) as ImageProvider
+            ? const AssetImage(assetImage) as ImageProvider
             : NetworkImage(authUserImageUrl),
-        onBackgroundImageError: (obj, str) => AssetImage(assetImage),
+        onBackgroundImageError: (obj, str) => const AssetImage(assetImage),
       );
     } else {
       return CircleAvatar(
         radius: radius,
         backgroundImage: imageUrl!.isEmpty
-            ? AssetImage(assetImage) as ImageProvider
+            ? const AssetImage(assetImage) as ImageProvider
             : NetworkImage(
                 imageUrl!,
               ),
-        onBackgroundImageError: (obj, str) => AssetImage(assetImage),
+        onBackgroundImageError: (obj, str) => const AssetImage(assetImage),
       );
     }
   }

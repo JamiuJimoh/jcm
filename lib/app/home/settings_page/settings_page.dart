@@ -2,22 +2,23 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:jamiu_class_manager/app/home/models/user_profile.dart';
-import 'package:jamiu_class_manager/common_widgets/custom_elevated_button.dart';
-import 'package:jamiu_class_manager/common_widgets/custom_text_form_field.dart';
-import 'package:jamiu_class_manager/common_widgets/show_exception_alert_dialog.dart';
-import 'package:jamiu_class_manager/services/auth.dart';
-import 'package:jamiu_class_manager/services/database.dart';
 import 'package:provider/provider.dart';
 
+import '../../../common_widgets/custom_elevated_button.dart';
+import '../../../common_widgets/custom_text_form_field.dart';
+import '../../../common_widgets/show_exception_alert_dialog.dart';
+import '../../../services/auth.dart';
+import '../../../services/database.dart';
+import '../models/user_profile.dart';
 import 'image_input.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({
+    Key? key,
     required this.database,
     required this.auth,
     required this.userProfile,
-  });
+  }) : super(key: key);
   final Database database;
   final AuthBase auth;
   final UserProfile userProfile;
@@ -118,7 +119,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Settings')),
+      appBar: AppBar(title: const Text('Settings')),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
@@ -166,7 +167,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: _isLoading
-                        ? CircularProgressIndicator(color: Colors.white)
+                        ? const CircularProgressIndicator(color: Colors.white)
                         : Text(
                             'Update Profile',
                             style: Theme.of(context)

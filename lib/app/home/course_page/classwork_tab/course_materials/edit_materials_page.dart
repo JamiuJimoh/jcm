@@ -1,5 +1,10 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:jamiu_class_manager/app/home/course_page/classwork_tab/course_materials/attachment_section.dart';
+import 'package:jamiu_class_manager/app/home/models/pdf.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../common_widgets/custom_text_form_field.dart';
@@ -60,6 +65,8 @@ class _EditMaterialPageState extends State<EditMaterialPage> {
     'description': '',
   };
 
+  late final List<File> _pickedFile = [];
+
   @override
   void initState() {
     super.initState();
@@ -85,6 +92,15 @@ class _EditMaterialPageState extends State<EditMaterialPage> {
         description: _initialValue['description'],
       );
 
+      _pickedFile.forEach((file) async {
+        final url = await widget.database.postPDF(file);
+        final pdf = PDF(
+            pdfID: documentIdFromCurrentDate(),
+            pdf: url,
+            materialID: materialId);
+
+        await widget.database.setPDF(pdf);
+      });
       await widget.database.setMaterial(widget.courseId, material);
       setState(() {
         _isLoading = false;
@@ -105,11 +121,35 @@ class _EditMaterialPageState extends State<EditMaterialPage> {
     }
   }
 
+  Future<void> _getPDF() async {
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
+    if (result != null) {
+      for (var path in result.paths) {
+        _pickedFile.add(File(path!));
+      }
+    }
+    setState(() {});
+  }
+
+  void _removeFile(File file) {
+    setState(() {
+      _pickedFile.remove(file);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         actions: [
+          IconButton(
+            icon: const Icon(Icons.attachment_outlined),
+            onPressed: () => _getPDF(),
+          ),
           _isLoading
               ? const Center(child: CircularProgressIndicator())
               : IconButton(
@@ -121,6 +161,7 @@ class _EditMaterialPageState extends State<EditMaterialPage> {
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CustomTextFormField(
               autofocus: true,
@@ -145,6 +186,11 @@ class _EditMaterialPageState extends State<EditMaterialPage> {
               onChanged: (val) {
                 _initialValue['description'] = val;
               },
+            ),
+            const SizedBox(height: 30.0),
+            AttachmentSection(
+              picked: _pickedFile,
+              removeFile: _removeFile,
             ),
           ],
         ),

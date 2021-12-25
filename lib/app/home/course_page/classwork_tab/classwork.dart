@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jamiu_class_manager/app/home/models/material_pdf.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../services/auth.dart';
@@ -7,6 +8,7 @@ import '../../../utils/months.dart';
 import '../../list_items_builder.dart';
 import '../../models/course_material.dart';
 import '../course_page.dart';
+import 'classwork_bloc.dart';
 import 'course_materials/course_material_page.dart';
 import 'widgets/bottom_sheet_content.dart';
 
@@ -17,11 +19,13 @@ class Classwork extends StatefulWidget {
     required this.entityType,
     required this.auth,
     required this.database,
+    required this.bloc,
   }) : super(key: key);
   final String courseID;
   final EntityType entityType;
   final AuthBase auth;
   final Database database;
+  final ClassworkBloc bloc;
 
   static Widget create(
     context, {
@@ -32,11 +36,17 @@ class Classwork extends StatefulWidget {
     return Provider<Database>(
       create: (_) => FireStoreDatabase(uid: auth.currentUser!.uid),
       child: Consumer<Database>(
-        builder: (_, database, __) => Classwork(
-          auth: auth,
-          database: database,
-          courseID: courseID,
-          entityType: entityType,
+        builder: (_, database, __) => Provider<ClassworkBloc>(
+          create: (_) => ClassworkBloc(database: database),
+          child: Consumer<ClassworkBloc>(
+            builder: (_, bloc, __) => Classwork(
+              auth: auth,
+              database: database,
+              bloc: bloc,
+              courseID: courseID,
+              entityType: entityType,
+            ),
+          ),
         ),
       ),
     );
@@ -68,30 +78,33 @@ class _ClassworkState extends State<Classwork> {
           : null,
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 10.0),
-        child: StreamBuilder<List<CourseMaterial>>(
-          stream: widget.database.materialsStream(widget.courseID),
+        child: StreamBuilder<List<MaterialPDF>>(
+          stream: widget.bloc.materialStreamCombiner(widget.courseID),
           builder: (_, snapshot) {
-            return ListItemsBuilder<CourseMaterial>(
+            
+            return ListItemsBuilder<MaterialPDF>(
               snapshot: snapshot,
               emptyStateTitle: 'No Classwork',
               emptyStateMessage: widget.entityType == EntityType.student
                   ? ''
                   : 'You haven\'t created any classwork yet',
               reverseList: false,
-              itemBuilder: (_, material) => ListTile(
+              itemBuilder: (_, materialPDF) => ListTile(
                 leading: const CircleAvatar(
                   child: Icon(Icons.class__outlined),
                 ),
-                title: Text(material.title),
+                title: Text(materialPDF.courseMaterial.title),
                 subtitle: Text(
-                  'Posted on ' + Months.completeDate(material.postedAt),
+                  'Posted on ' +
+                      Months.completeDate(materialPDF.courseMaterial.postedAt),
                   style: const TextStyle(fontSize: 12.0),
                 ),
                 onTap: () => CourseMaterialPage.show(
                   context,
-                  material: material,
+                  materialPDF: materialPDF,
                   entityType: widget.entityType,
                   courseId: widget.courseID,
+                  listLength: snapshot.data!.length,
                 ),
               ),
             );

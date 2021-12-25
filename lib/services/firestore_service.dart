@@ -16,15 +16,15 @@ class FirestoreService {
     await documentReference.set(data);
   }
 
-  Future<String> setImageData({
+  Future<String> setFile({
     required String path,
-    required File imageFile,
+    required File file,
   }) async {
     // FirebaseStorage.instance.ref().child(path).c;
     final documentReference =
-        FirebaseStorage.instance.ref().child(path).child(imageFile.path);
-    print('path===$path, imageTitle===${imageFile.path}');
-    await documentReference.putFile(imageFile);
+        FirebaseStorage.instance.ref().child(path).child(file.path);
+    print('path===$path, imageTitle===${file.path}');
+    await documentReference.putFile(file);
     return documentReference.getDownloadURL();
   }
 

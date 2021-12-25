@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../../services/auth.dart';
 import '../../../../../services/database.dart';
-import '../../../models/course_material.dart';
+import '../../../models/material_pdf.dart';
 import '../../course_page.dart';
 import 'edit_materials_page.dart';
 
@@ -12,21 +12,24 @@ enum Actions { edit, delete }
 class CourseMaterialPage extends StatefulWidget {
   const CourseMaterialPage({
     Key? key,
-    required this.material,
+    required this.materialPDF,
     required this.entityType,
     required this.courseId,
     required this.database,
+    required this.listLength,
   }) : super(key: key);
-  final CourseMaterial material;
+  final MaterialPDF materialPDF;
   final EntityType entityType;
   final String courseId;
   final Database database;
+  final int listLength;
 
   static Future<void> show(
     context, {
-    required CourseMaterial material,
+    required MaterialPDF materialPDF,
     required EntityType entityType,
     required String courseId,
+    required int listLength,
   }) async {
     final auth = Provider.of<AuthBase>(context, listen: false);
 
@@ -36,7 +39,8 @@ class CourseMaterialPage extends StatefulWidget {
           create: (_) => FireStoreDatabase(uid: auth.currentUser!.uid),
           child: Consumer<Database>(
             builder: (_, database, __) => CourseMaterialPage(
-              material: material,
+              listLength: listLength,
+              materialPDF: materialPDF,
               entityType: entityType,
               courseId: courseId,
               database: database,
@@ -66,13 +70,13 @@ class _CourseMaterialPageState extends State<CourseMaterialPage> {
                   EditMaterialPage.show(
                     context,
                     courseId: widget.courseId,
-                    material: widget.material,
+                    material: widget.materialPDF.courseMaterial,
                     isEdit: true,
                   );
                 } else {
                   widget.database.deleteMaterial(
                     widget.courseId,
-                    widget.material.materialId,
+                    widget.materialPDF.courseMaterial.materialId,
                   );
                   Navigator.of(context).pop();
                 }
@@ -107,15 +111,34 @@ class _CourseMaterialPageState extends State<CourseMaterialPage> {
           children: [
             const SizedBox(height: 25.0),
             Text(
-              widget.material.title,
+              widget.materialPDF.courseMaterial.title,
               style: Theme.of(context).textTheme.headline4?.copyWith(
                   color: Theme.of(context).primaryColor, fontSize: 25.0),
             ),
             ..._buildDivider(Theme.of(context).primaryColor),
             Text(
-              widget.material.description,
+              widget.materialPDF.courseMaterial.description,
               style: const TextStyle(fontSize: 15.0),
             ),
+            const SizedBox(height: 25.0),
+            GridView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 5,
+                // crossAxisSpacing: 5.0,
+                // mainAxisSpacing: 5.0,
+                // mainAxisExtent: 2.0
+              ),
+              itemCount: widget.listLength,
+              itemBuilder: (_, i) {
+                return Container(
+                  // height: 100,
+                  color: Colors.blue,
+                  child: Text("index: ${widget.materialPDF.pdf?.pdf}"),
+                );
+              },
+            )
           ],
         ),
       ),

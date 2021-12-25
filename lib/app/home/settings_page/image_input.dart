@@ -6,7 +6,11 @@ import 'package:image_picker/image_picker.dart';
 import 'pick_image_container.dart';
 
 class ImageInput extends StatefulWidget {
-  ImageInput({required this.pickedImageFn, required this.initialImage});
+  const ImageInput({
+    Key? key,
+    required this.pickedImageFn,
+    required this.initialImage,
+  }) : super(key: key);
   final void Function(File pickedImage) pickedImageFn;
   final String initialImage;
 
@@ -22,6 +26,9 @@ class _ImageInputState extends State<ImageInput> {
 
   Future<void> _chooseImageSource() async {
     await showModalBottomSheet(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8.0),
+      ),
       context: context,
       builder: (_) {
         return Padding(
@@ -97,7 +104,7 @@ class _ImageInputState extends State<ImageInput> {
                           ?.copyWith(color: Colors.white),
                     ),
                     const SizedBox(width: 10.0),
-                    Icon(Icons.camera, color: Colors.white),
+                    const Icon(Icons.camera, color: Colors.white),
                   ],
                 ),
               ),
@@ -107,7 +114,7 @@ class _ImageInputState extends State<ImageInput> {
         decorationImage: DecorationImage(
           image: _storedImage == null
               ? (widget.initialImage.isEmpty
-                  ? AssetImage('assets/images/blank-profile-picture.png')
+                  ? const AssetImage('assets/images/blank-profile-picture.png')
                   : NetworkImage(widget.initialImage) as ImageProvider)
               : FileImage(_storedImage!),
           fit: BoxFit.cover,
@@ -131,12 +138,12 @@ class _ImageInputState extends State<ImageInput> {
             Icon(
               icon,
               size: 35.0,
-              color: Theme.of(context).accentColor,
+              color: Theme.of(context).colorScheme.secondary,
             ),
             const SizedBox(height: 10.0),
             Text(
               text,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16.0,
                 fontWeight: FontWeight.w600,
               ),

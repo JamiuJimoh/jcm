@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:jamiu_class_manager/app/home/models/user_profile.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../common_widgets/user_circle_avatar.dart';
@@ -20,7 +21,7 @@ class ClassroomWidget extends StatelessWidget {
       required this.auth,
       required this.bloc})
       : super(key: key);
-      
+
   final String courseID;
   final AuthBase auth;
   final ClassConvoBloc bloc;
@@ -54,7 +55,24 @@ class ClassroomWidget extends StatelessWidget {
             borderColor: Theme.of(context).primaryColor,
             child: Row(
               children: [
-                UserCircleAvatar(),
+                StreamBuilder<List<UserProfile>>(
+                    stream:
+                        bloc.database.userProfilesStream(isCurrentUser: true),
+                    builder: (_, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      }
+                      if (snapshot.hasData) {
+                        final user = snapshot.data![0];
+                        return UserCircleAvatar(imageUrl: user.imageUrl);
+                      }
+                      if (snapshot.hasError) {
+                        return Center(
+                          child: Text(snapshot.error.toString()),
+                        );
+                      }
+                      return const CircularProgressIndicator();
+                    }),
                 const SizedBox(width: 15.0),
                 Text(
                   'Share with the class...',

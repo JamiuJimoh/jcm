@@ -1,7 +1,7 @@
 class APIPath {
   static String course(String courseId) => '/courses/$courseId';
 
-  static String courses() => '/courses';
+  static String get courses => '/courses';
 
   static String courseMaterial(String courseId, String materialId) =>
       '/courses/$courseId/materials/$materialId';
@@ -16,7 +16,7 @@ class APIPath {
 
   static String courseConvo(String classroomId) => '/classroom/$classroomId';
 
-  static String courseConvos() => '/classroom';
+  static String get courseConvos => '/classroom';
 
   static String courseConvoThread(String classroomId, String threadId) =>
       '/classroom/$classroomId/threads/$threadId';
@@ -29,9 +29,13 @@ class APIPath {
 
   static String joinedCourses(String uid) => '/users/$uid/joinedCourses';
 
-  static String userImage(String uid) => 'userImage/$uid/';
+  static String userImage() => 'userImage/';
+
+  static String pdf(String pdfID) => '/PDFs/$pdfID';
+
+  static String get pdfs => '/PDFs';
 
   static String user(String uid) => 'users/$uid/';
 
-  static String users() => 'users/';
+  static String get users => 'users/';
 }
