@@ -6,20 +6,23 @@ import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 class PDFViewer extends StatefulWidget {
   const PDFViewer({
     Key? key,
-    required this.file,
+    this.file,
+    this.url,
     required this.fileName,
   }) : super(key: key);
-  final File file;
+  final File? file;
+  final String? url;
   final String fileName;
 
   static Future<void> show(
     context, {
-    required File file,
+    File? file,
+    String? url,
     required String fileName,
   }) async {
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => PDFViewer(file: file, fileName: fileName),
+        builder: (_) => PDFViewer(file: file, url: url, fileName: fileName),
       ),
     );
   }
@@ -73,7 +76,14 @@ class _PDFViewerState extends State<PDFViewer> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   const SizedBox(height: 8.0),
-                  const Text('22/23'),
+                  Text(
+                    '${_pdfViewerController.pageNumber}/${_pdfViewerController.pageCount}',
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontWeight: FontWeight.w400,
+                      fontSize: 13.0,
+                    ),
+                  ),
                   const SizedBox(height: 40.0),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -129,7 +139,10 @@ class _PDFViewerState extends State<PDFViewer> {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
-        child: SfPdfViewer.file(widget.file, controller: _pdfViewerController),
+        child: widget.url == null
+            ? SfPdfViewer.file(widget.file!, controller: _pdfViewerController)
+            : SfPdfViewer.network(widget.url!,
+                controller: _pdfViewerController),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showModal(context),

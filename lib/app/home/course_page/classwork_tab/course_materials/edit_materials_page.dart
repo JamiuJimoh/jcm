@@ -1,10 +1,8 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:jamiu_class_manager/app/home/course_page/classwork_tab/course_materials/attachment_section.dart';
-import 'package:jamiu_class_manager/app/home/models/pdf.dart';
+import 'attachment_section.dart';
+import 'classwork_provider.dart';
+import '../../../models/pdf.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../common_widgets/custom_text_form_field.dart';
@@ -20,30 +18,35 @@ class EditMaterialPage extends StatefulWidget {
     required this.courseId,
     required this.database,
     required this.auth,
-    required this.isEdit,
+    required this.provider,
   }) : super(key: key);
   final CourseMaterial? material;
   final String courseId;
   final Database database;
   final AuthBase auth;
-  final bool isEdit;
+  final ClassworkProvider provider;
 
   static Future<void> show(context,
-      {CourseMaterial? material,
-      bool isEdit = false,
-      required String courseId}) async {
+      {CourseMaterial? material, required String courseId}) async {
     final auth = Provider.of<AuthBase>(context, listen: false);
+
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => Provider<Database>(
           create: (_) => FireStoreDatabase(uid: auth.currentUser!.uid),
           child: Consumer<Database>(
-            builder: (_, database, __) => EditMaterialPage(
-              auth: auth,
-              database: database,
-              material: material,
-              courseId: courseId,
-              isEdit: isEdit,
+            builder: (_, database, __) =>
+                ChangeNotifierProvider<ClassworkProvider>(
+              create: (_) => ClassworkProvider(),
+              child: Consumer<ClassworkProvider>(
+                builder: (_, provider, __) => EditMaterialPage(
+                  auth: auth,
+                  database: database,
+                  material: material,
+                  courseId: courseId,
+                  provider: provider,
+                ),
+              ),
             ),
           ),
         ),
@@ -64,8 +67,6 @@ class _EditMaterialPageState extends State<EditMaterialPage> {
     'title': '',
     'description': '',
   };
-
-  late final List<File> _pickedFile = [];
 
   @override
   void initState() {
@@ -92,23 +93,42 @@ class _EditMaterialPageState extends State<EditMaterialPage> {
         description: _initialValue['description'],
       );
 
-      _pickedFile.forEach((file) async {
-        final url = await widget.database.postPDF(file);
-        final pdf = PDF(
-            pdfID: documentIdFromCurrentDate(),
-            pdf: url,
-            materialID: materialId);
+      //    for (var file in _pickedFile) {
+      //   final url = await widget.database.postPDF(file);
+      //   final pdf = PDF(
+      //       pdfID: documentIdFromCurrentDate(),
+      //       pdf: url,
+      //       materialID: materialId);
+      //   await widget.database.setPDF(pdf);
+      // }
 
-        await widget.database.setPDF(pdf);
-      });
       await widget.database.setMaterial(widget.courseId, material);
+
+      await Future.wait(widget.provider.files.map(
+        (file) async {
+          final url = await widget.database.postPDF(file);
+          final pdf = PDF(
+              pdfID: documentIdFromCurrentDate(),
+              title: widget.provider.generateTitle(file),
+              url: url,
+              materialID: materialId);
+          return widget.database.setPDF(pdf);
+        },
+      ));
+      // _pickedFile.forEach((file) async {
+      //   final url = await widget.database.postPDF(file);
+      //   final pdf = PDF(
+      //       pdfID: documentIdFromCurrentDate(),
+      //       pdf: url,
+      //       materialID: materialId);
+
+      //   await widget.database.setPDF(pdf);
+      // });
+      // await widget.database.setMaterial(widget.courseId, material);
       setState(() {
         _isLoading = false;
       });
       Navigator.of(context).pop();
-      if (widget.isEdit) {
-        Navigator.of(context).pop();
-      }
     } on FirebaseException catch (e) {
       setState(() {
         _isLoading = false;
@@ -121,78 +141,65 @@ class _EditMaterialPageState extends State<EditMaterialPage> {
     }
   }
 
-  Future<void> _getPDF() async {
-    final result = await FilePicker.platform.pickFiles(
-      allowMultiple: true,
-      type: FileType.custom,
-      allowedExtensions: ['pdf'],
-    );
-    if (result != null) {
-      for (var path in result.paths) {
-        _pickedFile.add(File(path!));
-      }
-    }
-    setState(() {});
-  }
-
-  void _removeFile(File file) {
-    setState(() {
-      _pickedFile.remove(file);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: !_isLoading ? null : const Text('Loading...'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.attachment_outlined),
-            onPressed: () => _getPDF(),
-          ),
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : IconButton(
-                  onPressed: _canSubmit ? _send : null,
-                  icon: const Icon(Icons.send),
-                ),
+          if (!_isLoading) ...[
+            IconButton(
+              icon: const Icon(Icons.attachment_outlined),
+              onPressed: () => widget.provider.getPDF(),
+            ),
+            IconButton(
+              onPressed: _canSubmit ? _send : null,
+              icon: const Icon(Icons.send),
+            ),
+          ]
         ],
+        bottom: _isLoading
+            ? PreferredSize(
+                preferredSize: const Size(double.infinity, 4.0),
+                child: LinearProgressIndicator(
+                  color: Theme.of(context).colorScheme.secondary,
+                ))
+            : null,
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CustomTextFormField(
-              autofocus: true,
-              initialValue: _initialValue['title'],
-              labelText: 'Title',
-              textInputAction: TextInputAction.next,
-              onChanged: (val) {
-                setState(() {
-                  if (val.isNotEmpty) {
-                    _canSubmit = true;
-                  } else {
-                    _canSubmit = false;
-                  }
-                });
-                _initialValue['title'] = val;
-              },
-            ),
-            const SizedBox(height: 20.0),
-            CustomTextFormField(
-              initialValue: _initialValue['description'],
-              labelText: 'Description(optional)',
-              onChanged: (val) {
-                _initialValue['description'] = val;
-              },
-            ),
-            const SizedBox(height: 30.0),
-            AttachmentSection(
-              picked: _pickedFile,
-              removeFile: _removeFile,
-            ),
-          ],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CustomTextFormField(
+                autofocus: true,
+                initialValue: _initialValue['title'],
+                labelText: 'Title',
+                textInputAction: TextInputAction.next,
+                onChanged: (val) {
+                  setState(() {
+                    if (val.isNotEmpty) {
+                      _canSubmit = true;
+                    } else {
+                      _canSubmit = false;
+                    }
+                  });
+                  _initialValue['title'] = val;
+                },
+              ),
+              const SizedBox(height: 20.0),
+              CustomTextFormField(
+                initialValue: _initialValue['description'],
+                labelText: 'Description(optional)',
+                onChanged: (val) {
+                  _initialValue['description'] = val;
+                },
+              ),
+              const SizedBox(height: 30.0),
+              AttachmentSection(provider: widget.provider),
+            ],
+          ),
         ),
       ),
     );

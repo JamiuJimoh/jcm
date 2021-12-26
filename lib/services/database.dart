@@ -36,7 +36,9 @@ abstract class Database {
   Future<String> setImageData(File imageFile);
   Future<String> postPDF(File pdf);
   Future<void> setPDF(PDF pdf);
-  Stream<List<PDF>> pdfsStream();
+  Stream<List<PDF>> pdfsStream(String materialId);
+  Future<void> deletePDFFirestore(String pdfId);
+  Future<void> deletePDFStorage(String url);
 }
 
 String documentIdFromCurrentDate() => DateTime.now().toIso8601String();
@@ -113,14 +115,24 @@ class FireStoreDatabase implements Database {
       );
 
   @override
+  Future<void> deletePDFStorage(String url) => _service.deleteFile(
+        url: url,
+      );
+
+  @override
   Future<void> setPDF(PDF pdf) => _service.setData(
         path: APIPath.pdf(pdf.pdfID),
         data: pdf.toMap(),
       );
 
   @override
-  Stream<List<PDF>> pdfsStream() => _service.collectionStream<PDF>(
-        uid: uid!,
+  Future<void> deletePDFFirestore(String pdfId) => _service.deleteData(
+        path: APIPath.pdf(pdfId),
+      );
+
+  @override
+  Stream<List<PDF>> pdfsStream(String materialID) => _service.pdfStream<PDF>(
+        materialID: materialID,
         path: APIPath.pdfs,
         builder: (data, documentId) => PDF.fromJson(data, documentId),
       );

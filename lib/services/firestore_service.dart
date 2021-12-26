@@ -28,14 +28,10 @@ class FirestoreService {
     return documentReference.getDownloadURL();
   }
 
-  Future<String> imageUrl(Future<String> imageUrl) {
-    return imageUrl;
-  }
-
   Stream<List<T>> collectionStream<T>({
     required String path,
     required String uid,
-     bool isCreatedCourseCollectionStream=false,
+    bool isCreatedCourseCollectionStream = false,
     required T Function(Map<String, dynamic> data, String documentId) builder,
   }) {
     final ref = isCreatedCourseCollectionStream
@@ -43,6 +39,21 @@ class FirestoreService {
             .collection(path)
             .where('teacherId', isEqualTo: uid)
         : FirebaseFirestore.instance.collection(path);
+    final snapshot = ref.snapshots();
+
+    return snapshot.map((snapshot) => snapshot.docs
+        .map((snapshot) => builder(snapshot.data(), snapshot.id))
+        .toList());
+  }
+
+  Stream<List<T>> pdfStream<T>({
+    required String path,
+    required String materialID,
+    required T Function(Map<String, dynamic> data, String documentId) builder,
+  }) {
+    final ref = FirebaseFirestore.instance
+        .collection(path)
+        .where('materialID', isEqualTo: materialID);
     final snapshot = ref.snapshots();
 
     return snapshot.map((snapshot) => snapshot.docs
@@ -73,11 +84,9 @@ class FirestoreService {
     required String teacherId,
     required T Function(Map<String, dynamic> data, String documentId) builder,
   }) {
-    // final ref = isCreatedCourseCollectionStream?
     final ref = FirebaseFirestore.instance
         .collection(path)
         .where('userID', isEqualTo: teacherId);
-    // : FirebaseFirestore.instance.collection(path);
     final snapshot = ref.snapshots();
 
     return snapshot.map((snapshot) => snapshot.docs
@@ -102,8 +111,12 @@ class FirestoreService {
   }
 
   Future<void> deleteData({required String path}) async {
-    final reference = FirebaseFirestore.instance.doc(path);
+    await FirebaseFirestore.instance.doc(path).delete();
     print('delete $path');
-    await reference.delete();
+  }
+
+  Future<void> deleteFile({required String url}) async {
+    final ref = FirebaseStorage.instance.refFromURL(url);
+    await ref.delete();
   }
 }

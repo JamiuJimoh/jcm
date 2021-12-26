@@ -1,10 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:jamiu_class_manager/common_widgets/show_exception_alert_dialog.dart';
-import 'package:jamiu_class_manager/services/auth.dart';
-import 'package:jamiu_class_manager/services/database.dart';
 import 'package:provider/provider.dart';
 
+import '../../common_widgets/show_exception_alert_dialog.dart';
+import '../../services/auth.dart';
+import '../../services/database.dart';
 import '../landing_page.dart';
 import 'email_sign_change_model.dart';
 import 'form_submit_button.dart';
@@ -12,7 +12,11 @@ import 'sign_in_text_field.dart';
 import 'social_sign_in_button.dart';
 
 class EmailSignInForm extends StatefulWidget {
-  EmailSignInForm({required this.model, required this.database});
+  const EmailSignInForm({
+    Key? key,
+    required this.model,
+    required this.database,
+  }) : super(key: key);
   final EmailSignInChangeModel model;
   final Database database;
 

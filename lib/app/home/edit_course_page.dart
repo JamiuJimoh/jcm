@@ -172,6 +172,8 @@ class _EditCoursePageState extends State<EditCoursePage> {
                     labelText: 'Course title',
                     hintText: 'e.g Automata & Data Structure',
                     onSaved: (value) => _initialValue['courseTitle'] = value,
+                    enabled: _isLoading ? false : true,
+                    readOnly: _isLoading ? true : false,
                     onChanged: (value) {
                       setState(() {
                         _courseTitleEmpty = true;
@@ -191,6 +193,8 @@ class _EditCoursePageState extends State<EditCoursePage> {
                     labelText: 'Course code',
                     hintText: 'e.g CSC 401',
                     onSaved: (value) => _initialValue['courseCode'] = value,
+                    enabled: _isLoading ? false : true,
+                    readOnly: _isLoading ? true : false,
                     onChanged: (value) {
                       setState(() {
                         _courseCodeEmpty = true;
