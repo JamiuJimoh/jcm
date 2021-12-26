@@ -1,35 +1,40 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../../common_widgets/show_alert_dialog.dart';
 import '../../../../../services/auth.dart';
 import '../../../../../services/database.dart';
-import '../../../models/material_pdf.dart';
+import '../../../models/course_material.dart';
+import '../../../models/pdf.dart';
 import '../../course_page.dart';
+import '../pdf_viewer/pdf_viewer.dart';
+import 'classwork_provider.dart';
 import 'edit_materials_page.dart';
+import 'material_card.dart';
 
 enum Actions { edit, delete }
 
 class CourseMaterialPage extends StatefulWidget {
   const CourseMaterialPage({
     Key? key,
-    required this.materialPDF,
+    required this.courseMaterial,
     required this.entityType,
     required this.courseId,
     required this.database,
-    required this.listLength,
+    required this.provider,
   }) : super(key: key);
-  final MaterialPDF materialPDF;
+  final CourseMaterial courseMaterial;
   final EntityType entityType;
   final String courseId;
   final Database database;
-  final int listLength;
+  final ClassworkProvider provider;
 
   static Future<void> show(
     context, {
-    required MaterialPDF materialPDF,
+    required CourseMaterial courseMaterial,
     required EntityType entityType,
     required String courseId,
-    required int listLength,
   }) async {
     final auth = Provider.of<AuthBase>(context, listen: false);
 
@@ -38,12 +43,18 @@ class CourseMaterialPage extends StatefulWidget {
         builder: (_) => Provider<Database>(
           create: (_) => FireStoreDatabase(uid: auth.currentUser!.uid),
           child: Consumer<Database>(
-            builder: (_, database, __) => CourseMaterialPage(
-              listLength: listLength,
-              materialPDF: materialPDF,
-              entityType: entityType,
-              courseId: courseId,
-              database: database,
+            builder: (_, database, __) =>
+                ChangeNotifierProvider<ClassworkProvider>(
+              create: (_) => ClassworkProvider(),
+              child: Consumer<ClassworkProvider>(
+                builder: (_, provider, __) => CourseMaterialPage(
+                  courseMaterial: courseMaterial,
+                  entityType: entityType,
+                  courseId: courseId,
+                  database: database,
+                  provider: provider,
+                ),
+              ),
             ),
           ),
         ),
@@ -70,14 +81,37 @@ class _CourseMaterialPageState extends State<CourseMaterialPage> {
                   EditMaterialPage.show(
                     context,
                     courseId: widget.courseId,
-                    material: widget.materialPDF.courseMaterial,
-                    isEdit: true,
-                  );
+                    material: widget.courseMaterial,
+                  ).then((value) => setState(() {}));
                 } else {
-                  widget.database.deleteMaterial(
-                    widget.courseId,
-                    widget.materialPDF.courseMaterial.materialId,
-                  );
+                  // widget.database.deleteMaterial(
+                  //   widget.courseId,
+                  //   widget.courseMaterial.materialId,
+                  // );
+                  try {
+                    widget.provider.deleteMaterial(
+                      widget.database,
+                      widget.courseMaterial.materialId,
+                      widget.courseId,
+                    );
+                  } on FirebaseException catch (e) {
+                    print(e);
+                    showAlertDialog(
+                      context: context,
+                      title: 'Error',
+                      content: 'An error occurred while performing this action',
+                      defaultActionText: 'Cancel',
+                    );
+                  }catch(e){
+                    print(e);
+                    showAlertDialog(
+                      context: context,
+                      title: 'Error',
+                      content: 'An error occurred while performing this action',
+                      defaultActionText: 'Cancel',
+                    );
+
+                  }
                   Navigator.of(context).pop();
                 }
               },
@@ -104,42 +138,94 @@ class _CourseMaterialPageState extends State<CourseMaterialPage> {
             ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 25.0),
-            Text(
-              widget.materialPDF.courseMaterial.title,
-              style: Theme.of(context).textTheme.headline4?.copyWith(
-                  color: Theme.of(context).primaryColor, fontSize: 25.0),
-            ),
-            ..._buildDivider(Theme.of(context).primaryColor),
-            Text(
-              widget.materialPDF.courseMaterial.description,
-              style: const TextStyle(fontSize: 15.0),
-            ),
-            const SizedBox(height: 25.0),
-            GridView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 5,
-                // crossAxisSpacing: 5.0,
-                // mainAxisSpacing: 5.0,
-                // mainAxisExtent: 2.0
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 25.0),
+              Text(
+                widget.courseMaterial.title,
+                style: Theme.of(context).textTheme.headline4?.copyWith(
+                    color: Theme.of(context).primaryColor, fontSize: 25.0),
               ),
-              itemCount: widget.listLength,
-              itemBuilder: (_, i) {
-                return Container(
-                  // height: 100,
-                  color: Colors.blue,
-                  child: Text("index: ${widget.materialPDF.pdf?.pdf}"),
-                );
-              },
-            )
-          ],
+              ..._buildDivider(Theme.of(context).primaryColor),
+              Text(
+                widget.courseMaterial.description,
+                style: const TextStyle(fontSize: 15.0),
+              ),
+              const SizedBox(height: 20.0),
+              StreamBuilder<List<PDF>>(
+                  stream: widget.database
+                      .pdfsStream(widget.courseMaterial.materialId),
+                  builder: (_, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                    if (snapshot.hasData) {
+                      final pdfs = snapshot.data!;
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (pdfs.isNotEmpty) ...[
+                            Text(
+                              'Attachments',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyText1
+                                  ?.copyWith(fontWeight: FontWeight.w500),
+                            ),
+                            const SizedBox(height: 20.0)
+                          ],
+                          GridView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 10.0,
+                              mainAxisSpacing: 10.0,
+                              childAspectRatio: 1.0,
+                              // mainAxisExtent: 270.0,
+                            ),
+                            itemCount: pdfs.length,
+                            itemBuilder: (_, i) {
+                              return MaterialCard(
+                                title: pdfs[i].title,
+                                onPressed: () => PDFViewer.show(
+                                  context,
+                                  fileName: pdfs[i].title,
+                                  url: pdfs[i].url,
+                                ),
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 35.0)
+                        ],
+                      );
+                    }
+
+                    if (snapshot.hasError) {
+                      showAlertDialog(
+                        context: context,
+                        title: 'Error',
+                        content: snapshot.error.toString(),
+                        defaultActionText: 'Close',
+                      );
+                      return Text(
+                        snapshot.error.toString(),
+                        style: Theme.of(context).textTheme.headline4,
+                      );
+                    }
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }),
+            ],
+          ),
         ),
       ),
     );

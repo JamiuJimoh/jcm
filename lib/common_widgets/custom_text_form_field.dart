@@ -22,6 +22,7 @@ class CustomTextFormField extends StatelessWidget {
   final String? Function(String?)? validator;
   final bool obscureText;
   final bool enabled;
+  final bool readOnly;
   final bool? autofocus;
 
   const CustomTextFormField({
@@ -31,7 +32,7 @@ class CustomTextFormField extends StatelessWidget {
     this.cursorColor,
     this.fillColor,
     this.maxLines,
-    this.borderRadius= 5.0,
+    this.borderRadius = 5.0,
     this.labelText,
     this.hintText,
     this.initialValue,
@@ -39,15 +40,16 @@ class CustomTextFormField extends StatelessWidget {
     this.prefixIcon,
     this.icon,
     this.suffixIcon,
+    this.controller,
     this.borderSide,
     this.keyboardType,
     this.onSaved,
     this.onChanged,
-    this.controller,
     this.validator,
-    this.obscureText= false,
-    this.enabled= true,
-    this.autofocus= false,
+    this.obscureText = false,
+    this.enabled = true,
+    this.readOnly = false,
+    this.autofocus = false,
   }) : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -63,6 +65,7 @@ class CustomTextFormField extends StatelessWidget {
       textInputAction: textInputAction,
       onSaved: onSaved,
       onChanged: onChanged,
+      readOnly: readOnly,
       decoration: InputDecoration(
         filled: true,
         fillColor: fillColor,

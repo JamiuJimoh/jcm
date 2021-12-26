@@ -1,10 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
-import 'package:jamiu_class_manager/app/home/models/user_profile.dart';
-import 'package:jamiu_class_manager/services/database.dart';
 
-import 'validators.dart';
 import '../../services/auth.dart';
+import '../../services/database.dart';
+import '../home/models/user_profile.dart';
+import 'validators.dart';
 
 enum EmailSignInFormType { signIn, register }
 
@@ -21,12 +21,12 @@ class EmailSignInChangeModel with EmailAndPasswordValidators, ChangeNotifier {
   final Database database;
 
   EmailSignInChangeModel({
-    this.email: '',
-    this.password: '',
-    this.confirmPassword: '',
-    this.formType: EmailSignInFormType.signIn,
-    this.isLoading: false,
-    this.submitted: false,
+    this.email = '',
+    this.password = '',
+    this.confirmPassword = '',
+    this.formType = EmailSignInFormType.signIn,
+    this.isLoading = false,
+    this.submitted = false,
     required this.auth,
     required this.database,
   });
@@ -81,8 +81,8 @@ class EmailSignInChangeModel with EmailAndPasswordValidators, ChangeNotifier {
   }
 
   String get secondaryButtonText {
-    final signInText = 'Don\'t have an account? Register';
-    final registerText = 'Already have an account? Sign In';
+    const signInText = 'Don\'t have an account? Register';
+    const registerText = 'Already have an account? Sign In';
     return formType == EmailSignInFormType.signIn ? signInText : registerText;
   }
 
