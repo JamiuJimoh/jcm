@@ -62,7 +62,7 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
       await model.submit();
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => LandingPage()),
+        MaterialPageRoute(builder: (_) => const LandingPage()),
       );
       setState(() {
         _isLoading = false;
@@ -144,7 +144,7 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
         onChanged: model.updateEmail,
         errorText: model.emailErrorText,
         labelText: 'Email',
-        prefixIcon: Icon(Icons.email),
+        prefixIcon:const Icon(Icons.email),
       ),
       const SizedBox(height: 10.0),
       SignInTextField(
@@ -155,7 +155,7 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
         onChanged: model.updatePassword,
         errorText: model.passwordErrorText,
         labelText: 'Password',
-        prefixIcon: Icon(Icons.lock),
+        prefixIcon:const Icon(Icons.lock),
         suffixIcon: _buildPasswordFieldSuffixIcon(),
         obscureText: _obscureText,
       ),
@@ -169,14 +169,14 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
           onChanged: model.updateConfirmPassword,
           errorText: model.confirmPasswordErrorText,
           labelText: 'Confirm Password',
-          prefixIcon: Icon(Icons.lock),
+          prefixIcon:const Icon(Icons.lock),
           suffixIcon: _buildPasswordFieldSuffixIcon(),
           obscureText: _obscureText,
         ),
       const SizedBox(height: 20.0),
       FormSubmitButton(
         child: _isLoading
-            ? Center(
+            ?const Center(
                 child: CircularProgressIndicator(
                   backgroundColor: Colors.white,
                 ),
@@ -202,7 +202,7 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
         ),
       ),
       const SizedBox(height: 20.0),
-      Container(
+      SizedBox(
         width: MediaQuery.of(context).size.width * 0.8,
         child: Row(
           children: [
@@ -237,7 +237,7 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
       ),
       const SizedBox(height: 15.0),
       _isGoogleLoading
-          ? LinearProgressIndicator()
+          ? const LinearProgressIndicator()
           : SocialSignInButton(
               assetName: 'assets/images/google-logo.png',
               text: Text(

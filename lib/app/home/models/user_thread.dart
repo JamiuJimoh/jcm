@@ -1,5 +1,4 @@
-import 'package:jamiu_class_manager/app/home/models/classroom_convo_thread.dart';
-
+import 'classroom_convo_thread.dart';
 import 'user_profile.dart';
 
 class UserThread {

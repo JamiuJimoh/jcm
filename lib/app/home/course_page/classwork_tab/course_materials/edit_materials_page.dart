@@ -177,12 +177,22 @@ class _EditMaterialPageState extends State<EditMaterialPage> {
                 initialValue: _initialValue['title'],
                 labelText: 'Title',
                 textInputAction: TextInputAction.next,
+                enabled: _isLoading ? false : true,
+                readOnly: _isLoading ? true : false,
                 onChanged: (val) {
                   setState(() {
-                    if (val.isNotEmpty) {
-                      _canSubmit = true;
+                    if (widget.material == null) {
+                      if (val.isNotEmpty) {
+                        _canSubmit = true;
+                      } else {
+                        _canSubmit = false;
+                      }
                     } else {
-                      _canSubmit = false;
+                      if (val.isNotEmpty) {
+                        _canSubmit = true;
+                      } else {
+                        _canSubmit = false;
+                      }
                     }
                   });
                   _initialValue['title'] = val;
@@ -192,6 +202,8 @@ class _EditMaterialPageState extends State<EditMaterialPage> {
               CustomTextFormField(
                 initialValue: _initialValue['description'],
                 labelText: 'Description(optional)',
+                enabled: _isLoading ? false : true,
+                readOnly: _isLoading ? true : false,
                 onChanged: (val) {
                   _initialValue['description'] = val;
                 },

@@ -12,7 +12,6 @@ class FirestoreService {
     required Map<String, dynamic> data,
   }) async {
     final documentReference = FirebaseFirestore.instance.doc(path);
-    print('path===$path, data===$data');
     await documentReference.set(data);
   }
 
@@ -23,7 +22,6 @@ class FirestoreService {
     // FirebaseStorage.instance.ref().child(path).c;
     final documentReference =
         FirebaseStorage.instance.ref().child(path).child(file.path);
-    print('path===$path, imageTitle===${file.path}');
     await documentReference.putFile(file);
     return documentReference.getDownloadURL();
   }
@@ -112,11 +110,10 @@ class FirestoreService {
 
   Future<void> deleteData({required String path}) async {
     await FirebaseFirestore.instance.doc(path).delete();
-    print('delete $path');
   }
 
   Future<void> deleteFile({required String url}) async {
-    final ref = FirebaseStorage.instance.refFromURL(url);
+    final ref = FirebaseStorage.instance.ref(url);
     await ref.delete();
   }
 }

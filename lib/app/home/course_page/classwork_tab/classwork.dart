@@ -58,6 +58,8 @@ class Classwork extends StatefulWidget {
 }
 
 class _ClassworkState extends State<Classwork> {
+  var _isLoading = false;
+
   Future<void> _buildModalBottomSheet() {
     return showModalBottomSheet(
       shape: RoundedRectangleBorder(
@@ -66,6 +68,44 @@ class _ClassworkState extends State<Classwork> {
       context: context,
       builder: (_) => BottomSheetContent(courseId: widget.courseID),
     );
+  }
+
+  Future<void> _delete(String materialId) async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+      await widget.provider.deleteMaterial(
+        widget.database,
+        materialId,
+        widget.courseID,
+      );
+      setState(() {
+        _isLoading = false;
+      });
+    } on FirebaseException catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      print(e);
+      showAlertDialog(
+        context: context,
+        title: 'Error',
+        content: 'An error occurred while performing this action',
+        defaultActionText: 'Cancel',
+      );
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      print(e);
+      showAlertDialog(
+        context: context,
+        title: 'Error',
+        content: 'An error occurred while performing this action',
+        defaultActionText: 'Cancel',
+      );
+    }
   }
 
   @override
@@ -90,9 +130,11 @@ class _ClassworkState extends State<Classwork> {
                   : 'You haven\'t created any classwork yet',
               reverseList: false,
               itemBuilder: (_, material) => ListTile(
-                leading: const CircleAvatar(
-                  child: Icon(Icons.class__outlined),
-                ),
+                leading: _isLoading
+                    ? const CircularProgressIndicator()
+                    : const CircleAvatar(
+                        child: Icon(Icons.class__outlined),
+                      ),
                 title: Text(material.title),
                 subtitle: Text(
                   'Posted on ' + Months.completeDate(material.postedAt),
@@ -106,33 +148,7 @@ class _ClassworkState extends State<Classwork> {
                 ),
                 trailing: IconButton(
                   icon: const Icon(Icons.delete_outline, color: Colors.red),
-                  onPressed: () {
-                    try {
-                      widget.provider.deleteMaterial(
-                        widget.database,
-                        material.materialId,
-                        widget.courseID,
-                      );
-                    } on FirebaseException catch (e) {
-                      print(e);
-                      showAlertDialog(
-                        context: context,
-                        title: 'Error',
-                        content:
-                            'An error occurred while performing this action',
-                        defaultActionText: 'Cancel',
-                      );
-                    }catch(e){
-                    print(e);
-                    showAlertDialog(
-                      context: context,
-                      title: 'Error',
-                      content: 'An error occurred while performing this action',
-                      defaultActionText: 'Cancel',
-                    );
-
-                  }
-                  },
+                  onPressed: () => _delete(material.materialId),
                 ),
               ),
             );

@@ -120,8 +120,8 @@ class AddCommentPage extends StatelessWidget {
                         child: ListItemsBuilder<UserThread>(
                           reverseList: false,
                           snapshot: snapshot,
-                          emptyStateTitle: 'Class is silent',
-                          emptyStateMessage: 'Start a conversation',
+                          emptyStateTitle: 'Thread is silent',
+                          emptyStateMessage: 'Start the discussion',
                           itemBuilder: (_, userThread) => Column(
                             children: [
                               ListTile(
