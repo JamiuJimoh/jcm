@@ -49,7 +49,7 @@ class EmailSignInChangeModel with EmailAndPasswordValidators, ChangeNotifier {
   }
 
   Future<void> signInWithGoogle() async {
-    updateWith(submitted: true, isLoading: true);
+    updateWith(isLoading: true);
 
     try {
       final credential = await auth.signInWithGoogle();

@@ -52,7 +52,7 @@ class ClassroomWidget extends StatelessWidget {
       child: Column(
         children: [
           ShareWithClassContainer(
-            borderColor: Theme.of(context).primaryColor,
+            borderColor: Theme.of(context).primaryColor.withOpacity(0.4),
             child: Row(
               children: [
                 StreamBuilder<List<UserProfile>>(
@@ -95,6 +95,7 @@ class ClassroomWidget extends StatelessWidget {
                     snapshot: snapshot,
                     emptyStateTitle: 'Class is silent',
                     emptyStateMessage: 'Start a conversation',
+                    // scrollable: false,
                     itemBuilder: (_, userClassroom) => Column(
                       children: [
                         MessageContainer(
@@ -102,10 +103,12 @@ class ClassroomWidget extends StatelessWidget {
                           sender:
                               '${userClassroom.userProfile?.name} ${userClassroom.userProfile?.surname}',
                           message: userClassroom.classroom.message,
-                          borderColor: Theme.of(context).primaryColor,
+                          borderColor:
+                              Theme.of(context).primaryColor.withOpacity(0.2),
                           time: userClassroom.classroom.createdAt,
                           leadingAvatar: UserCircleAvatar(
-                              imageUrl: userClassroom.userProfile?.imageUrl),
+                            imageUrl: userClassroom.userProfile?.imageUrl,
+                          ),
                           onPressed: () => AddCommentPage.show(
                             context,
                             userClassroom: userClassroom,

@@ -3,7 +3,8 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:jamiu_class_manager/services/database.dart';
+
+import '../../../../../services/database.dart';
 
 class ClassworkProvider extends ChangeNotifier {
   // final Database database;
@@ -59,11 +60,15 @@ class ClassworkProvider extends ChangeNotifier {
       );
       database.pdfsStream(materialID).listen((pdfs) async {
         for (var pdf in pdfs) {
-          await database.deletePDFStorage(pdf.url);
-          await database.deletePDFFirestore(pdf.pdfID);
+          try {
+            await database.deletePDFStorage(pdf.url);
+            await database.deletePDFFirestore(pdf.pdfID);
+          } on FirebaseException catch (_) {
+            rethrow;
+          }
         }
       });
-    } on FirebaseException catch (e) {
+    } on FirebaseException catch (_) {
       rethrow;
     } catch (e) {
       rethrow;

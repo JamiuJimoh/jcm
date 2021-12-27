@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:jamiu_class_manager/app/home/models/course.dart';
+import 'package:provider/provider.dart';
 
+import '../../../services/auth.dart';
+import '../../../services/database.dart';
+import '../edit_course_page.dart';
+import '../models/course.dart';
 import '../models/created_course.dart';
 import '../models/joined_course.dart';
 import 'classroom_tab/classroom_widget.dart';
@@ -14,20 +18,29 @@ class CoursePage extends StatefulWidget {
     Key? key,
     this.joinedCourse,
     this.createdCourse,
+    required this.auth,
+    // required this.context,
   }) : super(key: key);
   final JoinedCourse? joinedCourse;
   final CreatedCourse? createdCourse;
+  final AuthBase auth;
+  // final BuildContext context;
 
   static Future<void> show(
     BuildContext context, {
     JoinedCourse? joinedCourse,
     CreatedCourse? createdCourse,
   }) async {
+    final auth = Provider.of<AuthBase>(context, listen: false);
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => CoursePage(
-          joinedCourse: joinedCourse,
-          createdCourse: createdCourse,
+        builder: (_) => Provider<Database>(
+          create: (_) => FireStoreDatabase(uid: auth.currentUser!.uid),
+          child: CoursePage(
+            joinedCourse: joinedCourse,
+            createdCourse: createdCourse,
+            auth: auth,
+          ),
         ),
       ),
     );
@@ -71,6 +84,17 @@ class _CoursePageState extends State<CoursePage> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(course.courseTitle),
+          actions: course.teacherId == widget.auth.currentUser!.uid
+              ? [
+                  IconButton(
+                    onPressed: () => EditCoursePage.show(
+                      context,
+                      course: course as CreatedCourse,
+                    ),
+                    icon: const Icon(Icons.settings_outlined),
+                  ),
+                ]
+              : null,
           // toolbarHeight: 150.0,
           bottom: TabBar(
             tabs: _tabs,

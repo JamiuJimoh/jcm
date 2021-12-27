@@ -132,6 +132,9 @@ class _EditCoursePageState extends State<EditCoursePage> {
           _isLoading = false;
         });
         Navigator.of(context).pop();
+        if (widget.course != null) {
+          Navigator.of(context).pop();
+        }
       } on FirebaseException catch (e) {
         setState(() {
           _isLoading = false;
@@ -215,13 +218,15 @@ class _EditCoursePageState extends State<EditCoursePage> {
                     child: _isLoading
                         ? const CircularProgressIndicator()
                         : Text(
-                            'Create Course',
+                            widget.course == null ? 'Create Course' : 'Update',
                             style: Theme.of(context)
                                 .textTheme
                                 .bodyText1
                                 ?.copyWith(color: Colors.white, fontSize: 16.0),
                           ),
-                    onPressed: !canSubmit() ? null : _submit,
+                    onPressed: (!canSubmit() && widget.course == null)
+                        ? null
+                        : _submit,
                   ),
                 ],
               ),

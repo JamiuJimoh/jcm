@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:jamiu_class_manager/common_widgets/custom_text_form_field.dart';
+
+import '../../common_widgets/custom_text_form_field.dart';
 
 class SignInTextField extends CustomTextFormField {
-  SignInTextField({
+  const SignInTextField({
+    Key? key,
     required Widget prefixIcon,
     required String labelText,
     required TextEditingController controller,
@@ -11,10 +13,11 @@ class SignInTextField extends CustomTextFormField {
     Widget? suffixIcon,
     TextInputAction? textInputAction,
     TextInputType? keyboardType,
-    bool enabled: true,
-    int maxLines: 1,
-    bool obscureText: false,
+    bool enabled = true,
+    int maxLines = 1,
+    bool obscureText = false,
   }) : super(
+          key: key,
           borderRadius: 5.0,
           controller: controller,
           errorText: errorText,
