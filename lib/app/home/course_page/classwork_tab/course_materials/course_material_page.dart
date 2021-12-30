@@ -84,10 +84,6 @@ class _CourseMaterialPageState extends State<CourseMaterialPage> {
                     material: widget.courseMaterial,
                   ).then((value) => setState(() {}));
                 } else {
-                  // widget.database.deleteMaterial(
-                  //   widget.courseId,
-                  //   widget.courseMaterial.materialId,
-                  // );
                   try {
                     widget.provider.deleteMaterial(
                       widget.database,
@@ -102,7 +98,7 @@ class _CourseMaterialPageState extends State<CourseMaterialPage> {
                       content: 'An error occurred while performing this action',
                       defaultActionText: 'Cancel',
                     );
-                  }catch(e){
+                  } catch (e) {
                     print(e);
                     showAlertDialog(
                       context: context,
@@ -110,7 +106,6 @@ class _CourseMaterialPageState extends State<CourseMaterialPage> {
                       content: 'An error occurred while performing this action',
                       defaultActionText: 'Cancel',
                     );
-
                   }
                   Navigator.of(context).pop();
                 }
