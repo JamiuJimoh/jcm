@@ -10,7 +10,7 @@ import '../../../models/pdf.dart';
 import '../../course_page.dart';
 import '../pdf_viewer/pdf_viewer.dart';
 import 'classwork_provider.dart';
-import 'edit_materials_page.dart';
+import 'edit_material_page.dart';
 import 'material_card.dart';
 
 enum Actions { edit, delete }

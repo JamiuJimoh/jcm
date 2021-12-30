@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../../common_widgets/show_alert_dialog.dart';
 import '../../../../services/auth.dart';
 import '../../../../services/database.dart';
-import '../../../utils/months.dart';
+import '../../../utils/format_date.dart';
 import '../../list_items_builder.dart';
 import '../../models/course_material.dart';
 import '../course_page.dart';
@@ -123,36 +123,37 @@ class _ClassworkState extends State<Classwork> {
           stream: widget.database.materialsStream(widget.courseID),
           builder: (_, snapshot) {
             return ListItemsBuilder<CourseMaterial>(
-              snapshot: snapshot,
-              emptyStateTitle: 'No Classwork',
-              emptyStateMessage: widget.entityType == EntityType.student
-                  ? ''
-                  : 'You haven\'t created any classwork yet',
-              reverseList: false,
-              itemBuilder: (_, material) => ListTile(
-                leading: const CircleAvatar(
-                  child: Icon(Icons.class__outlined),
-                ),
-                title: Text(material.title),
-                subtitle: Text(
-                  'Posted on ' + Months.completeDate(material.postedAt),
-                  style: const TextStyle(fontSize: 12.0),
-                ),
-                onTap: () => CourseMaterialPage.show(
-                  context,
-                  courseMaterial: material,
-                  entityType: widget.entityType,
-                  courseId: widget.courseID,
-                ),
-                trailing: _isLoading
-                    ? const CircularProgressIndicator()
-                    : IconButton(
-                        icon:
-                            const Icon(Icons.delete_outline, color: Colors.red),
-                        onPressed: () => _delete(material.materialId),
-                      ),
-              ),
-            );
+                snapshot: snapshot,
+                emptyStateTitle: 'No Classwork',
+                emptyStateMessage: widget.entityType == EntityType.student
+                    ? ''
+                    : 'You haven\'t created any classwork yet',
+                reverseList: false,
+                itemBuilder: (_, material) {
+                  return ListTile(
+                    leading: const CircleAvatar(
+                      child: Icon(Icons.class__outlined),
+                    ),
+                    title: Text(material.title),
+                    subtitle: Text(
+                      'Posted ' + FormatDate.getDate(material.postedAt),
+                      style: const TextStyle(fontSize: 12.0),
+                    ),
+                    onTap: () => CourseMaterialPage.show(
+                      context,
+                      courseMaterial: material,
+                      entityType: widget.entityType,
+                      courseId: widget.courseID,
+                    ),
+                    trailing: _isLoading
+                        ? const CircularProgressIndicator()
+                        : IconButton(
+                            icon: const Icon(Icons.delete_outline,
+                                color: Colors.red),
+                            onPressed: () => _delete(material.materialId),
+                          ),
+                  );
+                });
           },
         ),
       ),

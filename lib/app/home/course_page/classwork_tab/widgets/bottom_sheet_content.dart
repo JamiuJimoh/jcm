@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../course_materials/edit_materials_page.dart';
+import '../course_materials/edit_assignment_page.dart';
+import '../course_materials/edit_material_page.dart';
 
 class BottomSheetContent extends StatelessWidget {
   const BottomSheetContent({
@@ -34,10 +35,15 @@ class BottomSheetContent extends StatelessWidget {
                   EditMaterialPage.show(context, courseId: courseId);
                 },
               ),
-              const ListTile(
+              ListTile(
                 horizontalTitleGap: 0.0,
-                leading: Icon(Icons.assignment_outlined, color: Colors.black54),
-                title: Text('Assignment'),
+                leading: const Icon(Icons.assignment_outlined,
+                    color: Colors.black54),
+                title: const Text('Assignment'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  EditAssignmentPage.show(context, courseId: courseId);
+                },
               ),
             ],
           ),

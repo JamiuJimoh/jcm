@@ -2,11 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../common_widgets/custom_container.dart';
-import '../../../utils/months.dart';
+import '../../../utils/format_date.dart';
 
 class MessageContainer extends CustomContainer {
   MessageContainer(
     BuildContext context, {
+    Key? key,
     required String message,
     required Color borderColor,
     required Widget leadingAvatar,
@@ -14,6 +15,7 @@ class MessageContainer extends CustomContainer {
     required Timestamp time,
     required VoidCallback onPressed,
   }) : super(
+          key: key,
           onPressed: onPressed,
           borderRadius: 5.0,
           maxWidth: 400.0,
@@ -35,7 +37,7 @@ class MessageContainer extends CustomContainer {
                         .bodyText1
                         ?.copyWith(fontSize: 16.0),
                   ),
-                  subtitle: Text(Months.getDate(time)),
+                  subtitle: Text(FormatDate.getDate(time)),
                   leading: leadingAvatar,
                 ),
               ),

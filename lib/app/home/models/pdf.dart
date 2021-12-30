@@ -2,12 +2,12 @@ class PDF {
   final String pdfID;
   final String title;
   final String url;
-  final String materialID;
+  final String classworkItemID;
   PDF({
     required this.pdfID,
     required this.title,
     required this.url,
-    required this.materialID,
+    required this.classworkItemID,
   });
 
   factory PDF.fromJson(Map<String, dynamic> data, String documentId) {
@@ -15,7 +15,7 @@ class PDF {
       pdfID: documentId,
       title: data['title'],
       url: data['url'],
-      materialID: data['materialID'],
+      classworkItemID: data['classworkItemID'],
     );
   }
 
@@ -24,7 +24,7 @@ class PDF {
       'pdfID': pdfID,
       'title': title,
       'url': url,
-      'materialID': materialID,
+      'classworkItemID': classworkItemID,
     };
   }
 }

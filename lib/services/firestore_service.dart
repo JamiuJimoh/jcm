@@ -50,12 +50,12 @@ class FirestoreService {
 
   Stream<List<T>> pdfStream<T>({
     required String path,
-    required String materialID,
+    required String itemID,
     required T Function(Map<String, dynamic> data, String documentId) builder,
   }) {
     final ref = FirebaseFirestore.instance
         .collection(path)
-        .where('materialID', isEqualTo: materialID);
+        .where('classworkItemID', isEqualTo: itemID);
     final snapshot = ref.snapshots();
 
     return snapshot.map((snapshot) => snapshot.docs
