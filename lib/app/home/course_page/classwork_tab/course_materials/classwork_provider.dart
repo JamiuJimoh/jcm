@@ -3,11 +3,14 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:jamiu_class_manager/app/home/models/course_assignment.dart';
+import 'package:jamiu_class_manager/app/home/models/course_material.dart';
+import 'package:jamiu_class_manager/app/home/models/pdf.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../../../services/database.dart';
 
 class ClassworkProvider extends ChangeNotifier {
-  // final Database database;
   final List<File> _files = [];
 
   List<File> get files => _files;
@@ -43,6 +46,30 @@ class ClassworkProvider extends ChangeNotifier {
     return _files.firstWhere(
       (file) => file.path.split('/').last == item,
     );
+  }
+
+  Future<void> sendPickedPDFs({
+    required String classworkItemID,
+    required Database database,
+  }) async {
+    try {
+      await Future.wait(_files.map(
+        (file) async {
+          const uuid = Uuid();
+          final pdfId = uuid.v4();
+          final url = await database.postPDF(file, pdfId);
+          final pdf = PDF(
+            pdfID: pdfId,
+            title: generateTitle(file),
+            url: url,
+            classworkItemID: classworkItemID,
+          );
+          return database.setPDF(pdf);
+        },
+      ));
+    } on FirebaseException catch (_) {
+      rethrow;
+    }
   }
 
   void removeFile(String title) {

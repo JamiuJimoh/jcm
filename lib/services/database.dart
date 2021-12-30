@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:jamiu_class_manager/app/home/models/course_assignment.dart';
+
 import '../app/home/models/classroom.dart';
 import '../app/home/models/classroom_convo_thread.dart';
 import '../app/home/models/course_material.dart';
@@ -35,6 +37,8 @@ abstract class Database {
   Future<String> postPDF(File pdf, String pdfId);
   Future<void> setPDF(PDF pdf);
   Stream<List<PDF>> pdfsStream(String materialId);
+  Stream<List<CourseAssignment>> assignmentsStream(String courseId);
+  Future<void> setAssignment(String courseId, CourseAssignment assignment);
   Future<void> deletePDFFirestore(String pdfId);
   Future<void> deletePDFStorage(String url);
 }
@@ -95,6 +99,21 @@ class FireStoreDatabase implements Database {
       );
 
   @override
+  Future<void> setAssignment(String courseId, CourseAssignment assignment) =>
+      _service.setData(
+        path: APIPath.courseAssignment(courseId, assignment.assignmentId),
+        data: assignment.toMap(),
+      );
+
+  @override
+  Stream<List<CourseAssignment>> assignmentsStream(String courseId) =>
+      _service.collectionStream<CourseAssignment>(
+        uid: uid!,
+        path: APIPath.courseAssignments(courseId),
+        builder: (data, documentId) => CourseAssignment.fromJson(data),
+      );
+
+  @override
   Future<void> deleteMaterial(String courseId, String materialId) =>
       _service.deleteData(
         path: APIPath.courseMaterial(courseId, materialId),
@@ -132,8 +151,8 @@ class FireStoreDatabase implements Database {
       );
 
   @override
-  Stream<List<PDF>> pdfsStream(String materialID) => _service.pdfStream<PDF>(
-        materialID: materialID,
+  Stream<List<PDF>> pdfsStream(String itemID) => _service.pdfStream<PDF>(
+        itemID: itemID,
         path: APIPath.pdfs,
         builder: PDF.fromJson,
       );

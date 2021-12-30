@@ -85,8 +85,7 @@ class _EditMaterialPageState extends State<EditMaterialPage> {
       setState(() {
         _isLoading = true;
       });
-      final materialId =
-          widget.material?.materialId ?? documentIdFromCurrentDate();
+      final materialId = widget.material?.materialId ?? const Uuid().v4();
       final material = CourseMaterial(
         materialId: materialId,
         postedAt: Timestamp.now(),
@@ -96,19 +95,8 @@ class _EditMaterialPageState extends State<EditMaterialPage> {
 
       await widget.database.setMaterial(widget.courseId, material);
 
-      await Future.wait(widget.provider.files.map(
-        (file) async {
-          const uuid = Uuid();
-          final pdfId = uuid.v4();
-          final url = await widget.database.postPDF(file, pdfId);
-          final pdf = PDF(
-              pdfID: pdfId,
-              title: widget.provider.generateTitle(file),
-              url: url,
-              materialID: materialId);
-          return widget.database.setPDF(pdf);
-        },
-      ));
+      await widget.provider.sendPickedPDFs(
+          database: widget.database, classworkItemID: materialId);
 
       setState(() {
         _isLoading = false;

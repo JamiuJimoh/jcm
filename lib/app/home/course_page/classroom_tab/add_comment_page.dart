@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:jamiu_class_manager/app/home/course_page/classroom_tab/class_convo_bloc.dart';
-import 'package:jamiu_class_manager/app/home/models/user_thread.dart';
-import 'package:jamiu_class_manager/services/auth.dart';
-
 import '../../../../common_widgets/user_circle_avatar.dart';
+import '../../../../services/auth.dart';
 import '../../../../services/database.dart';
-import '../../../utils/months.dart';
+import '../../../utils/format_date.dart';
 import '../../list_items_builder.dart';
 import '../../models/classroom_convo_thread.dart';
 import '../../models/user_classroom.dart';
+import '../../models/user_thread.dart';
 import 'build_bottom_textfield.dart';
-import 'message_container.dart';
+import 'class_convo_bloc.dart';
 
 class AddCommentPage extends StatelessWidget {
   const AddCommentPage({
@@ -91,7 +89,7 @@ class AddCommentPage extends StatelessWidget {
                   subtitle: Row(
                     children: [
                       Text(
-                        '${userClassroom.classroom.createdAt.toDate().day} ${Months.getMonth(userClassroom.classroom.createdAt.toDate().month)} ${userClassroom.classroom.createdAt.toDate().year} ',
+                        FormatDate.getDate(userClassroom.classroom.createdAt),
                       ),
                     ],
                   ),
@@ -136,7 +134,8 @@ class AddCommentPage extends StatelessWidget {
                                 ),
                                 subtitle: Text(userThread.thread.message),
                                 trailing: Text(
-                                  '${userThread.thread.createdAt.toDate().day} ${Months.getMonth(userThread.thread.createdAt.toDate().month)} ${userThread.thread.createdAt.toDate().year}',
+                                  FormatDate.getDate(
+                                      userThread.thread.createdAt),
                                   style: TextStyle(
                                     fontSize: 12.0,
                                     fontWeight: FontWeight.w400,
