@@ -17,11 +17,15 @@ class FirestoreService {
 
   Future<String> setFile({
     required String path,
+    required String fileID,
     required File file,
   }) async {
-    // FirebaseStorage.instance.ref().child(path).c;
-    final documentReference =
-        FirebaseStorage.instance.ref().child(path).child(file.path);
+    final documentReference = FirebaseStorage.instance
+        .ref()
+        .child(path)
+        .child(fileID)
+        .child(file.path);
+
     await documentReference.putFile(file);
     return documentReference.getDownloadURL();
   }
@@ -113,7 +117,7 @@ class FirestoreService {
   }
 
   Future<void> deleteFile({required String url}) async {
-    final ref = FirebaseStorage.instance.ref(url);
+    final ref = FirebaseStorage.instance.refFromURL(url);
     await ref.delete();
   }
 }

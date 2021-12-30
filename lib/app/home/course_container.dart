@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:jamiu_class_manager/common_widgets/custom_container.dart';
+
+import '../../common_widgets/custom_container.dart';
 
 class CourseContainer extends CustomContainer {
-  CourseContainer({
+  CourseContainer({Key? key, 
     required Widget courseCode,
     required Widget courseTitle,
     required Widget teacherName,
     required VoidCallback onPressed,
-  }) : super(
+  }) : super(key: key, 
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -19,7 +20,7 @@ class CourseContainer extends CustomContainer {
             ],
           ),
           // borderColor: Colors.red,
-          gradient: LinearGradient(
+          gradient:const LinearGradient(
             colors: [
               Colors.indigo,
               Colors.deepPurple,

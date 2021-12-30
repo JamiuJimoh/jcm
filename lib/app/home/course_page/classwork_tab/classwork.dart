@@ -130,11 +130,9 @@ class _ClassworkState extends State<Classwork> {
                   : 'You haven\'t created any classwork yet',
               reverseList: false,
               itemBuilder: (_, material) => ListTile(
-                leading: _isLoading
-                    ? const CircularProgressIndicator()
-                    : const CircleAvatar(
-                        child: Icon(Icons.class__outlined),
-                      ),
+                leading: const CircleAvatar(
+                  child: Icon(Icons.class__outlined),
+                ),
                 title: Text(material.title),
                 subtitle: Text(
                   'Posted on ' + Months.completeDate(material.postedAt),
@@ -146,10 +144,13 @@ class _ClassworkState extends State<Classwork> {
                   entityType: widget.entityType,
                   courseId: widget.courseID,
                 ),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete_outline, color: Colors.red),
-                  onPressed: () => _delete(material.materialId),
-                ),
+                trailing: _isLoading
+                    ? const CircularProgressIndicator()
+                    : IconButton(
+                        icon:
+                            const Icon(Icons.delete_outline, color: Colors.red),
+                        onPressed: () => _delete(material.materialId),
+                      ),
               ),
             );
           },

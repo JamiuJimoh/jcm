@@ -54,10 +54,6 @@ class ClassworkProvider extends ChangeNotifier {
   Future<void> deleteMaterial(
       Database database, String materialID, String courseID) async {
     try {
-      await database.deleteMaterial(
-        courseID,
-        materialID,
-      );
       database.pdfsStream(materialID).listen((pdfs) async {
         for (var pdf in pdfs) {
           try {
@@ -68,6 +64,10 @@ class ClassworkProvider extends ChangeNotifier {
           }
         }
       });
+      await database.deleteMaterial(
+        courseID,
+        materialID,
+      );
     } on FirebaseException catch (_) {
       rethrow;
     } catch (e) {

@@ -1,15 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'attachment_section.dart';
-import 'classwork_provider.dart';
-import '../../../models/pdf.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../../../common_widgets/custom_text_form_field.dart';
 import '../../../../../common_widgets/show_exception_alert_dialog.dart';
 import '../../../../../services/auth.dart';
 import '../../../../../services/database.dart';
 import '../../../models/course_material.dart';
+import '../../../models/pdf.dart';
+import 'attachment_section.dart';
+import 'classwork_provider.dart';
 
 class EditMaterialPage extends StatefulWidget {
   const EditMaterialPage({
@@ -93,38 +94,22 @@ class _EditMaterialPageState extends State<EditMaterialPage> {
         description: _initialValue['description'],
       );
 
-      //    for (var file in _pickedFile) {
-      //   final url = await widget.database.postPDF(file);
-      //   final pdf = PDF(
-      //       pdfID: documentIdFromCurrentDate(),
-      //       pdf: url,
-      //       materialID: materialId);
-      //   await widget.database.setPDF(pdf);
-      // }
-
       await widget.database.setMaterial(widget.courseId, material);
 
       await Future.wait(widget.provider.files.map(
         (file) async {
-          final url = await widget.database.postPDF(file);
+          const uuid = Uuid();
+          final pdfId = uuid.v4();
+          final url = await widget.database.postPDF(file, pdfId);
           final pdf = PDF(
-              pdfID: documentIdFromCurrentDate(),
+              pdfID: pdfId,
               title: widget.provider.generateTitle(file),
               url: url,
               materialID: materialId);
           return widget.database.setPDF(pdf);
         },
       ));
-      // _pickedFile.forEach((file) async {
-      //   final url = await widget.database.postPDF(file);
-      //   final pdf = PDF(
-      //       pdfID: documentIdFromCurrentDate(),
-      //       pdf: url,
-      //       materialID: materialId);
 
-      //   await widget.database.setPDF(pdf);
-      // });
-      // await widget.database.setMaterial(widget.courseId, material);
       setState(() {
         _isLoading = false;
       });

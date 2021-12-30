@@ -1,13 +1,11 @@
 import 'dart:io';
 
-import '../app/home/models/course.dart';
-import '../app/home/models/course_material.dart';
-import '../app/home/models/pdf.dart';
-
 import '../app/home/models/classroom.dart';
 import '../app/home/models/classroom_convo_thread.dart';
+import '../app/home/models/course_material.dart';
 import '../app/home/models/created_course.dart';
 import '../app/home/models/joined_course.dart';
+import '../app/home/models/pdf.dart';
 import '../app/home/models/student.dart';
 import '../app/home/models/user_profile.dart';
 import 'api_path.dart';
@@ -34,7 +32,7 @@ abstract class Database {
   Future<void> setUserProfile(UserProfile user, String uid);
   Stream<List<UserProfile>> instructorStream({required String teacherId});
   Future<String> setImageData(File imageFile);
-  Future<String> postPDF(File pdf);
+  Future<String> postPDF(File pdf, String pdfId);
   Future<void> setPDF(PDF pdf);
   Stream<List<PDF>> pdfsStream(String materialId);
   Future<void> deletePDFFirestore(String pdfId);
@@ -57,7 +55,7 @@ class FireStoreDatabase implements Database {
         isCreatedCourseCollectionStream: isCreatedCourseCollectionStream,
         uid: uid!,
         path: APIPath.courses,
-        builder: (data, documentId) => CreatedCourse.fromMap(data, documentId),
+        builder: CreatedCourse.fromMap,
       );
 
   @override
@@ -104,12 +102,15 @@ class FireStoreDatabase implements Database {
 
   @override
   Future<String> setImageData(File imageFile) => _service.setFile(
+        //TODO: CHECK 'postPDF' down
+        fileID: imageFile.path,
         path: APIPath.userImage(),
         file: imageFile,
       );
 
   @override
-  Future<String> postPDF(File pdf) => _service.setFile(
+  Future<String> postPDF(File pdf, String pdfId) => _service.setFile(
+        fileID: pdfId,
         path: APIPath.pdfs,
         file: pdf,
       );
@@ -134,7 +135,7 @@ class FireStoreDatabase implements Database {
   Stream<List<PDF>> pdfsStream(String materialID) => _service.pdfStream<PDF>(
         materialID: materialID,
         path: APIPath.pdfs,
-        builder: (data, documentId) => PDF.fromJson(data, documentId),
+        builder: PDF.fromJson,
       );
 
   @override
@@ -143,7 +144,7 @@ class FireStoreDatabase implements Database {
         isCurrentUser: isCurrentUser,
         uid: uid!,
         path: APIPath.users,
-        builder: (data, documentId) => UserProfile.fromMap(data, documentId),
+        builder: UserProfile.fromMap,
       );
 
   @override
@@ -164,7 +165,7 @@ class FireStoreDatabase implements Database {
         path: APIPath.courseConvos,
         uid: uid!,
         courseID: courseID,
-        builder: (data, documentId) => Classroom.fromMap(data, documentId),
+        builder: Classroom.fromMap,
       );
 
   @override
@@ -181,8 +182,7 @@ class FireStoreDatabase implements Database {
       _service.collectionStream<ClassroomConvoThread>(
         path: APIPath.courseConvoThreads(classroomID),
         uid: uid!,
-        builder: (data, documentId) =>
-            ClassroomConvoThread.fromMap(data, documentId),
+        builder: ClassroomConvoThread.fromMap,
         isCreatedCourseCollectionStream: false,
       );
 
@@ -192,7 +192,7 @@ class FireStoreDatabase implements Database {
         isCreatedCourseCollectionStream: false,
         uid: uid!,
         path: APIPath.joinedCourses(uid!),
-        builder: (data, documentId) => JoinedCourse.fromMap(data, documentId),
+        builder: JoinedCourse.fromMap,
       );
 
   @override
@@ -205,7 +205,7 @@ class FireStoreDatabase implements Database {
       _service.entitiesCollectionStream<UserProfile>(
         path: APIPath.users,
         teacherId: teacherId,
-        builder: (data, documentId) => UserProfile.fromMap(data, documentId),
+        builder: UserProfile.fromMap,
       );
 
   // @override
